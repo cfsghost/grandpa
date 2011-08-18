@@ -615,13 +615,14 @@ gpa_backend_clutter_screen_init(GPaBackend *this, GPaScreen *screen)
 	clutter_actor_set_size(cbscreen->panel.background, clutter_actor_get_width(cbscreen->stage), 120);
 	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->panel.container), cbscreen->panel.background);
 	clutter_actor_lower(cbscreen->panel.container, cbscreen->viewport);
+	clutter_actor_hide(cbscreen->panel.container);
 
 	/* Allow input pass through */
 	gpa_backend_clutter_input_init(this, screen->overlay);
 	gpa_backend_clutter_input_init(this, cbscreen->stage_window);
 
 	clutter_actor_realize(cbscreen->stage);
-	clutter_actor_show_all(cbscreen->stage);
+	clutter_actor_show(cbscreen->stage);
 #endif
 }
 
