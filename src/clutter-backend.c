@@ -269,6 +269,30 @@ gpa_backend_clutter_screen_window_check(GPaBackend *this, Window w)
 	return FALSE;
 }
 
+static void
+gpa_backend_clutter_disable_panel_completed(ClutterAnimation *animation, gpointer user_data)
+{
+	GPaClient *client = (GPaClient *)user_data;
+	GPaClutterBackendScreen *cbscreen = (GPaClutterBackendScreen *)user_data;
+
+	/* Hide Panel */
+	clutter_actor_hide(cbscreen->panel.container);
+
+	DEBUG("Hide Panel\n");
+}
+
+static void
+gpa_backend_clutter_enable_panel_completed(ClutterAnimation *animation, gpointer user_data)
+{
+	GPaClient *client = (GPaClient *)user_data;
+	GPaClutterBackendScreen *cbscreen = (GPaClutterBackendScreen *)user_data;
+
+	/* Hide Panel */
+	clutter_actor_show(cbscreen->panel.container);
+
+	DEBUG("Show Panel\n");
+}
+
 gboolean
 gpa_backend_clutter_call(GPaBackend *this, GPaFuncCall func, gpointer userdata)
 {
@@ -288,8 +312,11 @@ gpa_backend_clutter_call(GPaBackend *this, GPaFuncCall func, gpointer userdata)
 			screen = (GPaScreen *)node->data;
 			cbscreen = (GPaClutterBackendScreen *)screen->backend;
 
+			/* Show Panel */
+			clutter_actor_show_all(cbscreen->panel.container);
 			clutter_actor_animate(cbscreen->viewport, CLUTTER_EASE_OUT_CIRC, 600,
 				"y", -120.0,
+				"signal-after::completed", gpa_backend_clutter_enable_panel_completed, cbscreen,
 				NULL);
 		}
 
@@ -304,6 +331,7 @@ gpa_backend_clutter_call(GPaBackend *this, GPaFuncCall func, gpointer userdata)
 
 			clutter_actor_animate(cbscreen->viewport, CLUTTER_EASE_OUT_CIRC, 600,
 				"y", .0,
+				"signal-after::completed", gpa_backend_clutter_disable_panel_completed, cbscreen,
 				NULL);
 		}
 
@@ -546,6 +574,10 @@ gpa_backend_clutter_screen_init(GPaBackend *this, GPaScreen *screen)
 	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->stage), cbscreen->viewport);
 	DEBUG("Stage window id: %ld\n", cbscreen->stage_window);
 
+	/* Create a Panel */
+	cbscreen->panel.container = clutter_group_new();
+	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->stage), cbscreen->panel.container);
+	cbscreen->panel.background = clutter_texture_new_from_file("panel_background.png", NULL);
 
 	/* Setting X Window */
 	XReparentWindow(gpa->display, cbscreen->stage_window, screen->overlay, 0, 0);
@@ -576,6 +608,13 @@ gpa_backend_clutter_screen_init(GPaBackend *this, GPaScreen *screen)
 	clutter_actor_set_size(cbscreen->stage, (gfloat)screen->width, (gfloat)screen->height);
 	clutter_actor_set_size(cbscreen->viewport, (gfloat)screen->width, (gfloat)screen->height);
 	clutter_stage_ensure_viewport(CLUTTER_STAGE(cbscreen->stage));
+
+	/* Configure panel */
+	clutter_texture_set_repeat(CLUTTER_TEXTURE(cbscreen->panel.background), TRUE, TRUE);
+	clutter_actor_set_position(cbscreen->panel.container, 0, clutter_actor_get_height(cbscreen->stage) - 120);
+	clutter_actor_set_size(cbscreen->panel.background, clutter_actor_get_width(cbscreen->stage), 120);
+	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->panel.container), cbscreen->panel.background);
+	clutter_actor_lower(cbscreen->panel.container, cbscreen->viewport);
 
 	/* Allow input pass through */
 	gpa_backend_clutter_input_init(this, screen->overlay);

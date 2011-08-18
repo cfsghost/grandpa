@@ -16,6 +16,10 @@ typedef struct {
 	Window stage_window;
 	ClutterActor *stage;
 	ClutterActor *viewport;
+	struct _panel {
+		ClutterActor *container;
+		ClutterActor *background;
+	} panel;
 } GPaClutterBackendScreen;
 
 typedef struct {
