@@ -315,7 +315,7 @@ gpa_backend_clutter_call(GPaBackend *this, GPaFuncCall func, gpointer userdata)
 			/* Show Panel */
 			clutter_actor_show_all(cbscreen->panel.container);
 			clutter_actor_animate(cbscreen->viewport, CLUTTER_EASE_OUT_CIRC, 600,
-				"y", -120.0,
+				"y", (gfloat)-GRANDPA_CONTROLBAR_HEIGHT,
 				"signal-after::completed", gpa_backend_clutter_enable_panel_completed, cbscreen,
 				NULL);
 		}
@@ -578,6 +578,7 @@ gpa_backend_clutter_screen_init(GPaBackend *this, GPaScreen *screen)
 	cbscreen->panel.container = clutter_group_new();
 	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->stage), cbscreen->panel.container);
 	cbscreen->panel.background = clutter_texture_new_from_file("panel_background.png", NULL);
+	cbscreen->panel.shadow = clutter_texture_new_from_file("shadow.png", NULL);
 
 	/* Setting X Window */
 	XReparentWindow(gpa->display, cbscreen->stage_window, screen->overlay, 0, 0);
@@ -611,9 +612,11 @@ gpa_backend_clutter_screen_init(GPaBackend *this, GPaScreen *screen)
 
 	/* Configure panel */
 	clutter_texture_set_repeat(CLUTTER_TEXTURE(cbscreen->panel.background), TRUE, TRUE);
-	clutter_actor_set_position(cbscreen->panel.container, 0, clutter_actor_get_height(cbscreen->stage) - 120);
-	clutter_actor_set_size(cbscreen->panel.background, clutter_actor_get_width(cbscreen->stage), 120);
+	clutter_actor_set_position(cbscreen->panel.container, 0, clutter_actor_get_height(cbscreen->stage) - GRANDPA_CONTROLBAR_HEIGHT);
+	clutter_actor_set_size(cbscreen->panel.background, clutter_actor_get_width(cbscreen->stage), GRANDPA_CONTROLBAR_HEIGHT);
+	clutter_actor_set_width(cbscreen->panel.shadow, clutter_actor_get_width(cbscreen->stage));
 	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->panel.container), cbscreen->panel.background);
+	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->panel.container), cbscreen->panel.shadow);
 	clutter_actor_lower(cbscreen->panel.container, cbscreen->viewport);
 	clutter_actor_hide(cbscreen->panel.container);
 

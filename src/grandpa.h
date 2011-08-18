@@ -13,6 +13,8 @@
 #include <X11/extensions/shape.h>
 #include "ewmh.h"
 
+#define GRANDPA_CONTROLBAR_HEIGHT 100
+
 typedef enum {
 	ETopLeft,    ETop,     ETopRight,
 	ERight,      ENone,    ELeft,

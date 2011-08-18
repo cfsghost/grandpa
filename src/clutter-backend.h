@@ -19,6 +19,7 @@ typedef struct {
 	struct _panel {
 		ClutterActor *container;
 		ClutterActor *background;
+		ClutterActor *shadow;
 	} panel;
 } GPaClutterBackendScreen;
 
