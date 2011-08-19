@@ -52,13 +52,12 @@ gpa_client_set_active(GrandPa *gpa, GPaClient *client, gboolean active)
 				client->window,
 				RevertToPointerRoot,
 				CurrentTime);
-#if 0
-			gpa_client_send_xclient_message(gpa->display,
+
+			gpa_client_send_xclient_message(gpa,
 				client,
 				gpa->wm_protocols,
 				gpa->wm_take_focus,
 				0L);
-#endif
 		}
 
 		gpa_ewmh_set_active(gpa, client);
