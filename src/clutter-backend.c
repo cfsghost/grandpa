@@ -417,8 +417,6 @@ gpa_backend_clutter_event_filter(XEvent *ev, ClutterEvent *cev, gpointer data)
 	case MappingNotify:
 	case MotionNotify:
 	case SelectionNotify:
-		g_print("XXXX %d\n", ev->type);
-
 	default:
 		gpa_eventdisp_send((GrandPa *)data, ev);
 		return CLUTTER_X11_FILTER_CONTINUE;

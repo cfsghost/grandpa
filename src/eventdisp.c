@@ -33,11 +33,6 @@ static EventDispatcher eventdisp[] = {
 	{KeyRelease, gpa_eventdisp_keyrelease},
 };
 
-static KeySym funckeys[] = {
-	XK_F2,
-	0
-};
-
 gboolean
 gpa_eventdisp_send(GrandPa *gpa, XEvent *ev)
 {
@@ -498,27 +493,18 @@ gpa_eventdisp_keypress(GrandPa *gpa, XEvent *ev)
 {
 	XKeyEvent *xke = &ev->xkey;
 	KeySym key;
-	KeyCode keycode;
-	gboolean ret = FALSE;
+	gboolean ret = TRUE;
 
 	key = XKeycodeToKeysym(gpa->display, xke->keycode, 0);
 	switch(key) {
-	case XK_F2:
-//		DEBUG("keyPress: %d\n", xke->keycode);
-
-		ret = TRUE;
-		break;
 	case XK_Super_L:
 		DEBUG("keyPress: %d\n", xke->keycode);
 
+		/* Check double-click behavior */
 		if (gpa->keycode == xke->keycode) {
 			if (xke->time - gpa->key_time <= 500)
 				gpa->key_state |= GPA_KEY_STATE_DOUBLE_CLICK;
 		}
-
-		/* Grabs */
-		if (!(gpa->key_state & GPA_KEY_STATE_DOUBLE_CLICK))
-			gpa_screenmgr_screen_grabkey_all(gpa, &funckeys);
 
 		ret = TRUE;
 		break;
@@ -537,17 +523,21 @@ gpa_eventdisp_keyrelease(GrandPa *gpa, XEvent *ev)
 {
 	XKeyEvent *xke = &ev->xkey;
 	KeySym key;
-	KeyCode keycode;
 
 	key = XKeycodeToKeysym(gpa->display, xke->keycode, 0);
 	switch(key) {
 	case XK_F2:
-//		DEBUG("KeyRelease: %d\n", xke->keycode);
+		/* Super + F2 */
+		if (xke->state & Mod4Mask) {
+			DEBUG("Open Terminal %d %d\n");
 
-		/* Open Terminal */
-		g_spawn_command_line_async("/usr/bin/xterm", NULL);
+			/* Open Terminal */
+			g_spawn_command_line_async("/usr/bin/xterm", NULL);
 
-		return TRUE;
+			return TRUE;
+		}
+
+		break;
 	case XK_Super_L:
 		DEBUG("KeyRelease: %d\n", xke->keycode);
 		/* Cancel something */
@@ -559,9 +549,6 @@ gpa_eventdisp_keyrelease(GrandPa *gpa, XEvent *ev)
 		/* Double click */
 		if ((gpa->keycode == xke->keycode) && (gpa->key_state & GPA_KEY_STATE_DOUBLE_CLICK)) {
 			gpa_eventdisp_key_doubleclick(gpa, ev);
-		} else {
-			/* Release any previous grabs */
-			gpa_screenmgr_screen_ungrabkey_all(gpa, &funckeys);
 		}
 
 		return TRUE;

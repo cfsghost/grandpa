@@ -95,8 +95,10 @@ gpa_screenmgr_screen_grabkey_init(GrandPa *gpa, GPaScreen *screen)
 }
 
 inline void
-gpa_screenmgr_screen_ungrabkey(GrandPa *gpa, GPaScreen *screen, KeyCode keycode)
+gpa_screenmgr_screen_ungrabkey(GrandPa *gpa, GPaScreen *screen, KeySym keysym)
 {
+	KeyCode keycode = XKeysymToKeycode(gpa->display, keysym);
+
 	XUngrabKey(gpa->display, keycode, AnyModifier, screen->root);
 }
 
