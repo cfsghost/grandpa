@@ -603,6 +603,7 @@ gpa_backend_clutter_screen_init(GPaBackend *this, GPaScreen *screen)
 	}
 #endif
 
+	clutter_stage_set_no_clear_hint(CLUTTER_STAGE(cbscreen->stage), TRUE);
 	clutter_stage_set_color(CLUTTER_STAGE(cbscreen->stage), &color);
 	clutter_actor_set_size(cbscreen->stage, (gfloat)screen->width, (gfloat)screen->height);
 	clutter_actor_set_size(cbscreen->viewport, (gfloat)screen->width, (gfloat)screen->height);
