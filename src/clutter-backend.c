@@ -408,6 +408,8 @@ gpa_backend_clutter_event_filter(XEvent *ev, ClutterEvent *cev, gpointer data)
 		gpa_eventdisp_send((GrandPa *)data, ev);
 		return CLUTTER_X11_FILTER_CONTINUE;
 
+#if 0
+	/* Ignore these events for optimization */
 	case ButtonPress:
 	case EnterNotify:
 	case LeaveNotify:
@@ -417,6 +419,7 @@ gpa_backend_clutter_event_filter(XEvent *ev, ClutterEvent *cev, gpointer data)
 	case MappingNotify:
 	case MotionNotify:
 	case SelectionNotify:
+#endif
 	default:
 		gpa_eventdisp_send((GrandPa *)data, ev);
 		return CLUTTER_X11_FILTER_CONTINUE;
@@ -603,11 +606,9 @@ gpa_backend_clutter_screen_init(GPaBackend *this, GPaScreen *screen)
 	}
 #endif
 
-	clutter_stage_set_no_clear_hint(CLUTTER_STAGE(cbscreen->stage), TRUE);
 	clutter_stage_set_color(CLUTTER_STAGE(cbscreen->stage), &color);
 	clutter_actor_set_size(cbscreen->stage, (gfloat)screen->width, (gfloat)screen->height);
 	clutter_actor_set_size(cbscreen->viewport, (gfloat)screen->width, (gfloat)screen->height);
-	clutter_stage_ensure_viewport(CLUTTER_STAGE(cbscreen->stage));
 
 	/* Configure panel */
 	clutter_texture_set_repeat(CLUTTER_TEXTURE(cbscreen->panel.background), TRUE, TRUE);
