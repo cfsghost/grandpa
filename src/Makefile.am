@@ -10,6 +10,8 @@ INCLUDES = \
 	$(PACKAGE_CFLAGS) \
 	$(G_CAST_CHECKS)
 
+AUTOMAKE_OPTIONS = subdir-objects
+
 grandpa_SOURCES = \
 	error.c \
 	error.h \
@@ -23,13 +25,12 @@ grandpa_SOURCES = \
 	backend.h \
 	eventdisp.c \
 	eventdisp.h \
-	clutter-backend.c \
-	clutter-backend.h \
+	backend/clutter/clutter-backend.c \
+	backend/clutter/clutter-backend.h \
 	screenmgr.c \
 	screenmgr.h \
 	grandpa.h \
 	grandpa.c
-
 
 grandpa_LDADD = \
 		$(PACKAGE_LIBS) \

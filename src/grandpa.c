@@ -9,7 +9,7 @@
 #include "ewmh.h"
 #include "backend.h"
 #include "client.h"
-#include "clutter-backend.h"
+#include "backend/clutter/clutter-backend.h"
 
 extern GPaBackendClass clutter_backend_class;
 
