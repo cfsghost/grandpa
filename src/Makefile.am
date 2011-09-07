@@ -26,6 +26,8 @@ grandpa_SOURCES = \
 	eventdisp.c \
 	eventdisp.h \
 	backend/clutter/clutter-backend.c \
+	backend/clutter/clutter-backend-event.c \
+	backend/clutter/clutter-backend-callback.c \
 	backend/clutter/clutter-backend.h \
 	screenmgr.c \
 	screenmgr.h \
