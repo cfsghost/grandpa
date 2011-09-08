@@ -236,7 +236,22 @@ gpa_eventdisp_configure_request(GrandPa *gpa, XEvent *ev)
 gboolean
 gpa_eventdisp_configure_notify(GrandPa *gpa, XEvent *ev)
 {
+	XConfigureEvent *ce = &ev->xconfigure;
+	GPaClient *client;
+
+	/* Trigger Xrandr extension */
 	XRRUpdateConfiguration(ev);
+
+	/* get information of window */
+	client = gpa_client_find_with_window(gpa, ce->window);
+	if (!client)
+		return FALSE;
+
+	if (client->priv_window)
+		return FALSE;
+
+	/* Update */
+	gpa_client_property_update(gpa, client);
 
 	return TRUE;
 }
@@ -343,7 +358,6 @@ gpa_eventdisp_unmap_notify(GrandPa *gpa, XEvent *ev)
 	client = gpa_client_find_with_window(gpa, xue->window);
 	if (!client)
 		return FALSE;
-
 
 	if (client->state == NormalState) {
 		XGrabServer(gpa->display);

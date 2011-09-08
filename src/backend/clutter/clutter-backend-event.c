@@ -15,6 +15,7 @@ static void
 gpa_backend_clutter_event_configure_notify(GrandPa *gpa, Window w)
 {
 	GPaClient *client;
+	GPaClutterBackendClient *cbclient;
 
 	/* get information of window */
 	client = gpa_client_find_with_window(gpa, w);
@@ -24,11 +25,20 @@ gpa_backend_clutter_event_configure_notify(GrandPa *gpa, Window w)
 	if (client->priv_window)
 		return;
 
-	gpa_client_property_update(gpa, client);
+//	gpa_client_property_update(gpa, client);
 
-	if (!client->backend)
+	if (!client->backend) {
 		/* A new window */
 		client->backend = (GPaClutterBackendClient *)gpa_backend_clutter_create_client(gpa, w);
+	} else {
+		/* Re-configure window */
+		cbclient = (GPaClutterBackendClient *)client->backend;
+		if (!cbclient)
+			return;
+
+		clutter_actor_set_size(cbclient->window, client->width, client->height);
+		clutter_actor_set_position(cbclient->window, client->x, client->y);
+	}
 
 	DEBUG("Configure Notify \n");
 }
@@ -241,15 +251,18 @@ gpa_backend_clutter_event_filter(XEvent *ev, ClutterEvent *cev, gpointer data)
 		return CLUTTER_X11_FILTER_CONTINUE;
 
 	case ConfigureNotify:
+		DEBUG("Backend got ConfigureNotify\n");
 		gpa_eventdisp_send((GrandPa *)data, ev);
 		gpa_backend_clutter_event_configure_notify((GrandPa *)data, ev->xconfigure.window);
 		return CLUTTER_X11_FILTER_CONTINUE;
 
 	case MapNotify:
+		DEBUG("Backend got MapNotify\n");
 		gpa_backend_clutter_event_map_notify((GrandPa *)data, ev->xmap.window);
 		return CLUTTER_X11_FILTER_CONTINUE;
 
 	case UnmapNotify:
+		DEBUG("Backend got UnmapNotify\n");
 		gpa_eventdisp_send((GrandPa *)data, ev);
 		gpa_backend_clutter_event_unmap_notify((GrandPa *)data, ev->xmap.window);
 		return CLUTTER_X11_FILTER_CONTINUE;
@@ -260,6 +273,7 @@ gpa_backend_clutter_event_filter(XEvent *ev, ClutterEvent *cev, gpointer data)
 		return CLUTTER_X11_FILTER_CONTINUE;
 
 	case PropertyNotify:
+		DEBUG("Backend got PropertyNotify\n");
 		gpa_eventdisp_send((GrandPa *)data, ev);
 		return CLUTTER_X11_FILTER_CONTINUE;
 
