@@ -279,7 +279,7 @@ gpa_eventdisp_map_request(GrandPa *gpa, XEvent *ev)
 			&client->x, &client->y, &client->width, &client->height,
 			&border_width, &depth);
 
-		/* Some GTK+ window will request 200x200 size of window, 
+		/* Some GTK+ window will request 200x200 size of window by default, 
 		 * then add components to such window. GTK+ will figure real 
 		 * size and set size before MapRequest rather than RequestConfigure.
 		 */
@@ -287,29 +287,22 @@ gpa_eventdisp_map_request(GrandPa *gpa, XEvent *ev)
 			/* figure center position */
 			client->x = (int)((client->screen->width - client->width) * 0.5);
 			client->y = (int)((client->screen->height - client->height) * 0.5);
-			
-			XMoveResizeWindow(gpa->display, client->window,
-				client->x, client->y,
-				client->width, client->height);
 		} else if (client->type == WTypeNormal || client->type == WTypeNone) { 
 			/* General window to be fullscreen */
 			client->x = 0;
 			client->y = 0;
 			client->width = client->screen->width;
 			client->height = client->screen->height;
-
-			XMoveResizeWindow(gpa->display, client->window,
-				client->x, client->y,
-				client->screen->width, client->screen->height);
 		} else if (client->override_redirect || client->trans != None) {
-			XMoveResizeWindow(gpa->display, client->window,
-				client->x, client->y,
-				client->width, client->height);
 		} else {
-			XMoveResizeWindow(gpa->display, client->window,
-				client->x, client->y,
-				client->screen->width, client->screen->height);
+			client->width = client->screen->width;
+			client->height = client->screen->height;
 		}
+
+		/* Move and resize window */
+		XMoveResizeWindow(gpa->display, client->window,
+			client->x, client->y,
+			client->width, client->height);
 
 		XReparentWindow(gpa->display, client->window, client->container, client->x, client->y);
 		XAddToSaveSet(gpa->display, client->window);
