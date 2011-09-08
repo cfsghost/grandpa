@@ -226,6 +226,8 @@ gpa_screenmgr_screen_new(GPaScreenManager *mgr, Display *display, gint num)
 	screen->root = RootWindow(display, num);
 	screen->width = DisplayWidth(display, num);
 	screen->height = DisplayHeight(display, num);
+	screen->avail_width = DisplayWidth(display, num);
+	screen->avail_height = DisplayHeight(display, num);
 
 	mgr->screens = g_list_append(mgr->screens, screen);
 

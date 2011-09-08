@@ -274,26 +274,33 @@ gpa_eventdisp_map_request(GrandPa *gpa, XEvent *ev)
 
 		XSelectInput(gpa->display, mre->window, event_mask);
 
-		/* fet Size and position */
+		/* Get size and position, we can notify some GTK+ windows will request
+		 * 200x200 size of window by default, then add components to such window.
+		 * GTK+ always figure real size and set size before MapRequest rather
+		 * than RequestConfigure.
+		 */
 		XGetGeometry(gpa->display, mre->window, &client->container,
 			&client->x, &client->y, &client->width, &client->height,
 			&border_width, &depth);
 
-		/* Some GTK+ window will request 200x200 size of window by default, 
-		 * then add components to such window. GTK+ will figure real 
-		 * size and set size before MapRequest rather than RequestConfigure.
-		 */
-		if (client->type == WTypeDialog) { 
-			/* figure center position */
-			client->x = (int)((client->screen->width - client->width) * 0.5);
-			client->y = (int)((client->screen->height - client->height) * 0.5);
-		} else if (client->type == WTypeNormal || client->type == WTypeNone) { 
-			/* General window to be fullscreen */
+		/* Figure size and position for difference window type and status */
+		if (client->wstate.fullscreen) {
 			client->x = 0;
 			client->y = 0;
 			client->width = client->screen->width;
 			client->height = client->screen->height;
+		} else if (client->type == WTypeDialog) { 
+			/* figure center position */
+			client->x = (int)((client->screen->width - client->width) * 0.5);
+			client->y = (int)((client->screen->height - client->height) * 0.5);
+		} else if (client->type == WTypeNormal || client->type == WTypeNone) { 
+			/* General window to be maximum */
+			client->x = 0;
+			client->y = 0;
+			client->width = client->screen->avail_width;
+			client->height = client->screen->avail_height;
 		} else if (client->override_redirect || client->trans != None) {
+			/* Keep original position and size */
 		} else {
 			client->width = client->screen->width;
 			client->height = client->screen->height;

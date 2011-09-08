@@ -41,6 +41,10 @@ typedef struct _GPaScreen {
 	gint width;
 	gint height;
 
+	/* Available size */
+	gint avail_width;
+	gint avail_height;
+
 	/* Cursor */
 	Cursor root_cursor;
 	Cursor cursor_map[E_LAST];
