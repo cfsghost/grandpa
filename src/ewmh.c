@@ -27,6 +27,8 @@ gpa_ewmh_init(GrandPa *gpa)
 		XInternAtom(gpa->display, "COMPOUND_TEXT", False);
 	gpa->wm_transient_for =
 		XInternAtom(gpa->display, "WM_TRANSIENT_FOR", False);
+	gpa->wm_normal_hints = 
+		XInternAtom(gpa->display, "WM_NORMAL_HINTS", False);
 
 	/* build half a million EWMH atoms */
 	gpa->ewmh_atoms[_NET_SUPPORTED] =
@@ -437,15 +439,11 @@ gpa_ewmh_set_active(GrandPa *gpa, GPaClient *client)
 	if (!client)
 		return;
 
-	gpa_error_trap_xerrors();
-
 	/* Setting current active window of screen */
 	XChangeProperty(gpa->display, client->screen->root,
 		gpa->ewmh_atoms[_NET_ACTIVE_WINDOW],
 		XA_WINDOW, 32, PropModeReplace,
 		(unsigned char *)&client->window, 1);
-
-	gpa_error_untrap_xerrors();
 }
 
 gchar *

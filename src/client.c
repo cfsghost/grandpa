@@ -103,13 +103,9 @@ gpa_client_set_state(GrandPa *gpa, GPaClient *client, gint state)
 	data[0] = (long) state;
 	data[1] = (long) None;
 
-	gpa_error_trap_xerrors();
-
 	client->state = state;
 	XChangeProperty(gpa->display, client->window, gpa->wm_state, gpa->wm_state, 32,
 		PropModeReplace, (unsigned char *) data, 2);
-
-	gpa_error_untrap_xerrors();
 
 	gpa_ewmh_state_sync(gpa, client);
 }

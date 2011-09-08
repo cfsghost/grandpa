@@ -6,16 +6,17 @@
 #include <X11/extensions/shape.h>
 
 #include "grandpa.h"
+#include "error.h"
 #include "ewmh.h"
 #include "backend.h"
 #include "client.h"
 #include "backend/clutter/clutter-backend.h"
 
 extern GPaBackendClass clutter_backend_class;
+GrandPa *gpa;
 
 int main(int argc, char *argv[])
 {
-	GrandPa *gpa;
 
 #ifdef ENABLE_NLS
 	bindtextdomain(GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
@@ -25,6 +26,10 @@ int main(int argc, char *argv[])
 
 	DEBUG("Starting GrandPa Window Manager\n");
 	gpa = (GrandPa *)g_new0(GrandPa, 1);
+
+	/* Trap all X error event */
+	gpa_error_trap_xerrors();
+
 	/* Initial Backend */
 	gpa_backend_init(gpa, GRANDPA_CLUTTER_BACKEND, &argc, &argv);
 
@@ -41,8 +46,13 @@ int main(int argc, char *argv[])
 
 	gpa_backend_event_init(gpa);
 
+	gpa->mode = GPA_MODE_NORMAL;
+
 	/* Main loop */
 	gpa_backend_main(gpa);
+
+	/* Untrap X error event */
+	gpa_error_trap_xerrors();
 
 	return 0;
 }

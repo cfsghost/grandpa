@@ -239,6 +239,8 @@ gpa_eventdisp_configure_notify(GrandPa *gpa, XEvent *ev)
 	XConfigureEvent *ce = &ev->xconfigure;
 	GPaClient *client;
 
+	DEBUG("gpa_eventdisp_configure_notify()\n");
+
 	/* Trigger Xrandr extension */
 	XRRUpdateConfiguration(ev);
 
@@ -361,11 +363,7 @@ gpa_eventdisp_unmap_notify(GrandPa *gpa, XEvent *ev)
 
 	if (client->state == NormalState) {
 		XGrabServer(gpa->display);
-		gpa_error_trap_xerrors();
-
 		gpa_client_set_state(gpa, client, WithdrawnState);
-
-		gpa_error_untrap_xerrors();
 		XUngrabServer(gpa->display);
 	}
 
@@ -404,9 +402,11 @@ gpa_eventdisp_property_notify(GrandPa *gpa, XEvent *ev)
 		/* get WM_TRANSIENT_FOR */
 		XGetTransientForHint(gpa->display, client->window, &client->trans);
 		return TRUE;
+	} else if (pe->atom == gpa->wm_normal_hints) {
+		DEBUG("PropertyNotify XA_WM_NORMAL_HINTS\n");
+	} else if (pe->atom == gpa->ewmh_atoms[_NET_WM_STRUT]) {
+		DEBUG("PropertyNotify _NET_WM_STRUT\n");
 	}
-
-	client->type = gpa_ewmh_get_window_type(gpa, pe->window);
 
 	return TRUE;
 }

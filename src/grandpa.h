@@ -27,6 +27,7 @@ typedef enum {
 } GPaKeyState;
 
 typedef enum {
+	GPA_MODE_INITIALIZING,
 	GPA_MODE_NORMAL,
 	GPA_MODE_CONTROLBAR
 } GPaMode;
@@ -79,6 +80,7 @@ typedef struct {
 	Atom wm_take_focus;
 	Atom wm_colormaps;
 	Atom wm_transient_for;
+	Atom wm_normal_hints;
 	Atom compound_text;
 	Atom ewmh_atoms[EWMH_ATOM_LAST];
 	Atom utf8_string;
