@@ -307,3 +307,11 @@ gpa_client_killer_find_with_window(GrandPa *gpa, Window w)
 
 	return NULL;
 }
+
+void
+gpa_client_raise(GrandPa *gpa, GPaClient *client)
+{
+	XRaiseWindow(gpa->display, client->window);
+
+	gpa_client_update_from_screen(gpa, client->screen);
+}

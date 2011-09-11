@@ -424,6 +424,7 @@ gpa_eventdisp_map_request(GrandPa *gpa, XEvent *ev)
 	XMapWindow(gpa->display, client->container);
 	XMapWindow(gpa->display, client->window);
 
+	gpa_client_raise(gpa, client);
 	gpa_client_set_state(gpa, client, NormalState);
 	gpa_client_set_active(gpa, client, TRUE);
 
@@ -588,7 +589,9 @@ gpa_eventdisp_client_message(GrandPa *gpa, XEvent *ev)
 		if (cme->message_type == gpa->ewmh_atoms[_NET_ACTIVE_WINDOW]) {
 			DEBUG("ClientMessage _NET_ACTIVE_WINDOW\n");
 
-			XMapRaised(gpa->display, client->window);
+//			XMapRaised(gpa->display, client->window);
+			XMapWindow(gpa->display, client->window);
+			gpa_client_raise(gpa, client);
 
 			/* update stack */
 			gpa_ewmh_client_list_update_with_screen(gpa, client->screen);
