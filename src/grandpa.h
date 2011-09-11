@@ -88,6 +88,9 @@ typedef struct {
 	/* Mode */
 	GPaMode mode;
 
+	/* Event poll */
+	GPollFD event_poll_fd;
+
 	/* Key state */
 	Time key_time;
 	KeyCode keycode;

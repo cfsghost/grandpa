@@ -31,5 +31,6 @@ typedef struct _GPaClient {
 
 
 GPaClient *gpa_client_find_with_window(GrandPa *gpa, Window w);
+GPaClient *gpa_client_remove_with_window(GrandPa *gpa, Window w);
 
 #endif

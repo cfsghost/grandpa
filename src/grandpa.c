@@ -44,12 +44,16 @@ int main(int argc, char *argv[])
 	/* Initializing all screens */
 	gpa_screenmgr_init(gpa);
 
-	gpa_backend_event_init(gpa);
+	/* Initializing backend event handler */
+//	gpa_backend_event_init(gpa);
+	/* Initializing event handler */
+	gpa_eventdisp_init(gpa);
 
 	gpa->mode = GPA_MODE_NORMAL;
 
 	/* Main loop */
 	gpa_backend_main(gpa);
+//	g_main_loop_run(g_main_loop_new(NULL, FALSE));
 
 	/* Untrap X error event */
 	gpa_error_trap_xerrors();

@@ -2,6 +2,7 @@
 #define GRANDPA_BACKEND_H
 
 #include "grandpa.h"
+#include "client.h"
 
 typedef enum {
 	GPA_FUNC_CALL_CONTROLBAR_ENABLE,
@@ -14,8 +15,11 @@ typedef struct _GPaBackend {
 } GPaBackend;
 
 typedef struct _GPaBackendClass {
+	Window (*get_root_window)(struct _GPaBackend *this, GPaScreen *screen);
+
 	gboolean (*call)(struct _GPaBackend *this, GPaFuncCall func, gpointer userdata);
 	gboolean (*screen_window_check)(struct _GPaBackend *this, Window w);
+	void (*handle_event)(struct _GPaBackend *this, XEvent *ev, GPaClient *client);
 
 	void (*init)(struct _GPaBackend *this, int *argc, char ***argv);
 	void (*screen_init)(struct _GPaBackend *this, GPaScreen *screen);
@@ -28,5 +32,9 @@ typedef struct _GPaBackendManager {
 	GPaBackendClass *engine;
 	GPaBackend *data;
 } GPaBackendManager;
+
+typedef void (*BackendXEventFunc) (GrandPa *gpa, XEvent *ev, GPaClient *client);
+
+void gpa_backend_handle_event(GrandPa *gpa, XEvent *ev, GPaClient *client);
 
 #endif

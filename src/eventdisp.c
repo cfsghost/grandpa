@@ -4,16 +4,20 @@
 #include <X11/extensions/Xrandr.h>
 
 #include "grandpa.h"
+#include "screenmgr.h"
 #include "error.h"
 #include "client.h"
 #include "eventdisp.h"
 #include "backend.h"
+
+extern GrandPa *gpa;
 
 static gboolean gpa_eventdisp_create_notify(GrandPa *gpa, XEvent *ev);
 static gboolean gpa_eventdisp_configure_request(GrandPa *gpa, XEvent *ev);
 static gboolean gpa_eventdisp_configure_notify(GrandPa *gpa, XEvent *ev);
 static gboolean gpa_eventdisp_map_request(GrandPa *gpa, XEvent *ev);
 static gboolean gpa_eventdisp_unmap_notify(GrandPa *gpa, XEvent *ev);
+static gboolean gpa_eventdisp_map_notify(GrandPa *gpa, XEvent *ev);
 static gboolean gpa_eventdisp_destroy_notify(GrandPa *gpa, XEvent *ev);
 static gboolean gpa_eventdisp_property_notify(GrandPa *gpa, XEvent *ev);
 static gboolean gpa_eventdisp_client_message(GrandPa *gpa, XEvent *ev);
@@ -25,6 +29,7 @@ static EventDispatcher eventdisp[] = {
 	{ConfigureRequest, gpa_eventdisp_configure_request},
 	{ConfigureNotify, gpa_eventdisp_configure_notify},
 	{MapRequest, gpa_eventdisp_map_request},
+	{MapNotify, gpa_eventdisp_map_notify},
 	{UnmapNotify, gpa_eventdisp_unmap_notify},
 	{DestroyNotify, gpa_eventdisp_destroy_notify},
 	{PropertyNotify, gpa_eventdisp_property_notify},
@@ -173,6 +178,74 @@ gpa_eventdisp_new(GrandPa *gpa, XEvent *ev)
 	}
 }
 
+static gboolean
+gpa_eventdisp_prepare(GSource *source, gint *timeout)
+{
+	*timeout = -1;
+
+	return XPending(gpa->display);
+}
+
+static gboolean
+gpa_eventdisp_check(GSource *source)
+{
+	if (gpa->event_poll_fd.revents & G_IO_IN)
+		return XPending(gpa->display);
+
+	return FALSE;
+}
+
+static gboolean
+gpa_eventdisp_dispatch(GSource *source, GSourceFunc callback, gpointer user_data)
+{
+	XEvent xevent;
+	GPaScreen *screen;
+	GPaClient *client;
+
+	while(XPending(gpa->display)) {
+		XNextEvent(gpa->display, &xevent);
+
+		/* Regard input window as window manager window */
+		screen = (GPaScreen *)gpa_screenmgr_get_screen_with_internal_window(gpa, xevent.xany.window, GA_SCREEN_WINDOW_INPUT_WINDOW);
+		if (screen)
+			xevent.xany.window = gpa_backend_get_root_window(gpa, screen);
+
+		if (!gpa_eventdisp_send(gpa, &xevent)) {
+			client = gpa_client_find_with_window(gpa, xevent.xany.window);
+			gpa_backend_handle_event(gpa, &xevent, client);
+		}
+	}
+
+	return TRUE;
+}
+
+static GSourceFuncs gpa_eventdisp_funcs = {
+	gpa_eventdisp_prepare,
+	gpa_eventdisp_check,
+	gpa_eventdisp_dispatch,
+	NULL
+};
+
+void
+gpa_eventdisp_init(GrandPa *gpa)
+{
+	GSource *source;
+	GPollFD *poll_fd = &(gpa->event_poll_fd);
+
+	/* create a source to hook event of X display */
+	source = g_source_new(&gpa_eventdisp_funcs, sizeof(GSource));
+
+	poll_fd->fd = ConnectionNumber(gpa->display);
+	poll_fd->events = G_IO_IN;
+
+	g_source_add_poll(source, poll_fd);
+	g_source_set_can_recurse(source, TRUE);
+	g_source_attach(source, NULL);
+
+	/* Initializing backend event handler */
+	gpa_backend_event_init(gpa);
+}
+
 gboolean
 gpa_eventdisp_create_notify(GrandPa *gpa, XEvent *ev)
 {
@@ -196,6 +269,9 @@ gpa_eventdisp_create_notify(GrandPa *gpa, XEvent *ev)
 		return FALSE;
 
 	client->container = cwe->parent;
+
+	/* event handler of backend */
+	gpa_backend_handle_event(gpa, ev, client);
 
 	return TRUE;
 }
@@ -230,6 +306,9 @@ gpa_eventdisp_configure_request(GrandPa *gpa, XEvent *ev)
 
 	DEBUG("Configuring Window Type: %ld\n", client->type);
 
+	/* event handler of backend */
+	gpa_backend_handle_event(gpa, ev, client);
+
 	return TRUE;
 }
 
@@ -254,6 +333,9 @@ gpa_eventdisp_configure_notify(GrandPa *gpa, XEvent *ev)
 
 	/* Update */
 	gpa_client_property_update(gpa, client);
+
+	/* event handler of backend */
+	gpa_backend_handle_event(gpa, ev, client);
 
 	return TRUE;
 }
@@ -348,6 +430,9 @@ gpa_eventdisp_map_request(GrandPa *gpa, XEvent *ev)
 	DEBUG("MapRequest \"%s\"\n", client->name);
 	DEBUG("MapRequest window %ld, size %ldx%ld on %ldx%ld\n", client->window, client->width, client->height, client->x, client->y);
 
+	/* event handler of backend */
+	gpa_backend_handle_event(gpa, ev, client);
+
 	return TRUE;
 }
 
@@ -367,6 +452,25 @@ gpa_eventdisp_unmap_notify(GrandPa *gpa, XEvent *ev)
 		XUngrabServer(gpa->display);
 	}
 
+	/* event handler of backend */
+	gpa_backend_handle_event(gpa, ev, client);
+
+	return TRUE;
+}
+
+gboolean
+gpa_eventdisp_map_notify(GrandPa *gpa, XEvent *ev)
+{
+	XMapEvent *xme = &ev->xmap;
+	GPaClient *client;
+
+	client = gpa_client_find_with_window(gpa, xme->window);
+	if (!client)
+		return FALSE;
+
+	/* event handler of backend */
+	gpa_backend_handle_event(gpa, ev, client);
+
 	return TRUE;
 }
 
@@ -374,8 +478,12 @@ gboolean
 gpa_eventdisp_destroy_notify(GrandPa *gpa, XEvent *ev)
 {
 	XDestroyWindowEvent *de = &ev->xdestroywindow;
+	GPaClient *client;
 
-	gpa_client_remove_with_window(gpa, de->window);
+	client = gpa_client_remove_with_window(gpa, de->window);
+
+	/* event handler of backend */
+	gpa_backend_handle_event(gpa, ev, client);
 
 	DEBUG("DestroyNotify window id: %ld\n", de->window);
 
@@ -407,6 +515,9 @@ gpa_eventdisp_property_notify(GrandPa *gpa, XEvent *ev)
 	} else if (pe->atom == gpa->ewmh_atoms[_NET_WM_STRUT]) {
 		DEBUG("PropertyNotify _NET_WM_STRUT\n");
 	}
+
+	/* event handler of backend */
+	gpa_backend_handle_event(gpa, ev, client);
 
 	return TRUE;
 }
@@ -480,6 +591,9 @@ gpa_eventdisp_client_message(GrandPa *gpa, XEvent *ev)
 			return TRUE;
 		}
 	}
+
+	/* event handler of backend */
+	gpa_backend_handle_event(gpa, ev, client);
 
 	return TRUE;
 }

@@ -12,6 +12,14 @@
 #include "client.h"
 #include "clutter-backend.h"
 
+Window
+gpa_backend_clutter_get_root_window(GPaBackend *this, GPaScreen *screen)
+{
+	GPaClutterBackendScreen *cbscreen = (GPaClutterBackendScreen *)screen->backend;
+
+	return cbscreen->stage_window;
+}
+
 GPaClutterBackendClient *
 gpa_backend_clutter_create_client(GrandPa *gpa, Window w)
 {
@@ -199,7 +207,7 @@ gpa_backend_clutter_screen_init(GPaBackend *this, GPaScreen *screen)
 	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->panel.container), cbscreen->panel.background);
 	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->panel.container), cbscreen->panel.shadow);
 	clutter_actor_lower(cbscreen->panel.container, cbscreen->viewport);
-	clutter_actor_hide(cbscreen->panel.container);
+//	clutter_actor_hide(cbscreen->panel.container);
 
 	/* Allow input pass through */
 	gpa_backend_clutter_input_init(this, screen->overlay);
@@ -218,8 +226,11 @@ gpa_backend_clutter_main(GPaBackend *this)
 }
 
 GPaBackendClass clutter_backend_class = {
+	get_root_window: gpa_backend_clutter_get_root_window,
+
 	call: gpa_backend_clutter_call,
 	screen_window_check: gpa_backend_clutter_screen_window_check,
+	handle_event: gpa_backend_clutter_event_handle,
 
 	init: gpa_backend_clutter_init,
 	screen_init: gpa_backend_clutter_screen_init,

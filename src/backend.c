@@ -2,7 +2,14 @@
 #include <glib/gi18n.h>
 
 #include "grandpa.h"
+#include "client.h"
 #include "backend.h"
+
+Window
+gpa_backend_get_root_window(GrandPa *gpa, GPaScreen *screen)
+{
+	return gpa->backend->engine->get_root_window(gpa->backend->data, screen);
+}
 
 gboolean
 gpa_backend_call(GrandPa *gpa, GPaFuncCall func, gpointer userdata)
@@ -14,6 +21,12 @@ gboolean
 gpa_backend_screen_window_check(GrandPa *gpa, Window w)
 {
 	return gpa->backend->engine->screen_window_check(gpa->backend->data, w);
+}
+
+void
+gpa_backend_handle_event(GrandPa *gpa, XEvent *ev, GPaClient *client)
+{
+	gpa->backend->engine->handle_event(gpa->backend->data, ev, client);
 }
 
 inline void

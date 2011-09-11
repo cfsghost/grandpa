@@ -47,5 +47,6 @@ void gpa_backend_clutter_enable_panel_completed(ClutterAnimation *animation, gpo
 void gpa_backend_clutter_disable_panel_completed(ClutterAnimation *animation, gpointer user_data);
 void gpa_backend_clutter_unmap_completed(ClutterAnimation *animation, gpointer user_data);
 void gpa_backend_clutter_window_destroy_completed(ClutterAnimation *animation, gpointer user_data);
+void gpa_backend_clutter_event_handle(GPaBackend *this, XEvent *ev, GPaClient *client);
 
 #endif
