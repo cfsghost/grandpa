@@ -485,6 +485,9 @@ gpa_eventdisp_destroy_notify(GrandPa *gpa, XEvent *ev)
 	/* event handler of backend */
 	gpa_backend_handle_event(gpa, ev, client);
 
+	/* TODO: release client structure */
+//	gpa_client_destroy(gpa, client);
+
 	DEBUG("DestroyNotify window id: %ld\n", de->window);
 
 	return TRUE;

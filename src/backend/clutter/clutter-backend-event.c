@@ -12,26 +12,21 @@
 GPaBackend *cbackend;
 
 static void
-gpa_backend_clutter_event_configure_notify(GrandPa *gpa, Window w)
+gpa_backend_clutter_event_configure_notify(GrandPa *gpa, GPaClient *client)
 {
-	GPaClient *client;
 	GPaClutterBackendClient *cbclient;
 
-	/* get information of window */
-	client = gpa_client_find_with_window(gpa, w);
 	if (!client)
 		return;
 
 	if (client->priv_window)
 		return;
 
-//	gpa_client_property_update(gpa, client);
-
 	if (!client->backend) {
-		DEBUG("Create Object for New Window %d\n", w);
+		DEBUG("Create Object for New Window %d\n", client->window);
 
 		/* A new window */
-		cbclient = gpa_backend_clutter_create_client(gpa, w);
+		cbclient = gpa_backend_clutter_create_client(gpa, client->window);
 		client->backend = (GPaClutterBackendClient *)cbclient;
 		clutter_actor_hide(cbclient->window);
 		clutter_container_add_actor(CLUTTER_CONTAINER(GPA_BACKEND_CLUTTER_SCREEN(client->screen->backend)->viewport), cbclient->window);
@@ -49,13 +44,10 @@ gpa_backend_clutter_event_configure_notify(GrandPa *gpa, Window w)
 }
 
 static void
-gpa_backend_clutter_event_destroy_notify(GrandPa *gpa, Window w)
+gpa_backend_clutter_event_destroy_notify(GrandPa *gpa, GPaClient *client)
 {
-	GPaClient *client;
 	GPaClutterBackendClient *cbclient;
 
-	/* get information of window */
-	client = (GPaClient *)gpa_client_killer_find_with_window(gpa, w);
 	if (!client)
 		return;
 
@@ -77,8 +69,6 @@ gpa_backend_clutter_event_destroy_notify(GrandPa *gpa, Window w)
 		clutter_actor_destroy(cbclient->window);
 
 		g_free(cbclient);
-
-		gpa_client_destroy(gpa, client);
 
 		DEBUG("Window %ld was destroyed\n", client->window);
 #if 0
@@ -106,12 +96,10 @@ gpa_backend_clutter_event_destroy_notify(GrandPa *gpa, Window w)
 }
 
 static void
-gpa_backend_clutter_event_unmap_notify(GrandPa *gpa, Window w)
+gpa_backend_clutter_event_unmap_notify(GrandPa *gpa, GPaClient *client)
 {
-	GPaClient *client;
 	GPaClutterBackendClient *cbclient;
 
-	client = gpa_client_find_with_window(gpa, w);
 	if (!client)
 		return;
 
@@ -151,12 +139,10 @@ gpa_backend_clutter_event_unmap_notify(GrandPa *gpa, Window w)
 }
 
 static void
-gpa_backend_clutter_event_map_notify(GrandPa *gpa, Window w)
+gpa_backend_clutter_event_map_notify(GrandPa *gpa, GPaClient *client)
 {
-	GPaClient *client;
 	GPaClutterBackendClient *cbclient;
 
-	client = gpa_client_find_with_window(gpa, w);
 	if (!client)
 		return;
 
@@ -169,7 +155,7 @@ gpa_backend_clutter_event_map_notify(GrandPa *gpa, Window w)
 	cbclient = (GPaClutterBackendClient *)client->backend;
 	if (!cbclient) {
 		DEBUG("Create object Now\n");
-		cbclient = gpa_backend_clutter_create_client(gpa, w);
+		cbclient = gpa_backend_clutter_create_client(gpa, client->window);
 		client->backend = cbclient;
 
 		if (!cbclient->window)
@@ -182,7 +168,7 @@ gpa_backend_clutter_event_map_notify(GrandPa *gpa, Window w)
 	if (!cbclient->window)
 		return;
 
-	DEBUG("Mapping Window ID: %ld, Type: %ld\n", w, client->type);
+	DEBUG("Mapping Window ID: %ld, Type: %ld\n", client->window, client->type);
 
 	clutter_actor_set_size(cbclient->window, client->width, client->height);
 	clutter_actor_set_position(cbclient->window, client->x, client->y);
@@ -219,7 +205,7 @@ gpa_backend_clutter_event_map_notify(GrandPa *gpa, Window w)
 
 //	DEBUG("Window was mapped\n");
 }
-
+#if 0
 static ClutterX11FilterReturn
 _gpa_backend_clutter_event_filter(XEvent *ev, ClutterEvent *cev, gpointer data)
 {
@@ -306,7 +292,7 @@ _gpa_backend_clutter_event_filter(XEvent *ev, ClutterEvent *cev, gpointer data)
 		return CLUTTER_X11_FILTER_CONTINUE;
 	}
 }
-
+#endif
 static gboolean
 gpa_backend_clutter_event_prepare(GSource *source, gint *timeout)
 {
@@ -385,7 +371,6 @@ gpa_backend_clutter_event_filter(XEvent *ev, ClutterEvent *cev, gpointer data)
 
 	switch (ev->type) {
 	case CreateNotify:
-		DEBUG("Backend got CreateNotify\n");
 		return CLUTTER_X11_FILTER_CONTINUE;
 
 	case KeyPress:
@@ -395,39 +380,27 @@ gpa_backend_clutter_event_filter(XEvent *ev, ClutterEvent *cev, gpointer data)
 		return CLUTTER_X11_FILTER_CONTINUE;
 
 	case ConfigureRequest:
-		DEBUG("Backend got ConfigureRequest\n");
 		return CLUTTER_X11_FILTER_REMOVE;
 
 	case MapRequest:
-		DEBUG("Backend got MapRequest\n");
 		return CLUTTER_X11_FILTER_REMOVE;
 
 	case DestroyNotify:
-		DEBUG("Backend got DestroyNotify\n");
-		gpa_backend_clutter_event_destroy_notify(gpa, ev->xdestroywindow.window);
 		return CLUTTER_X11_FILTER_CONTINUE;
 
 	case ConfigureNotify:
-		DEBUG("Backend got ConfigureNotify\n");
-		gpa_backend_clutter_event_configure_notify(gpa, ev->xconfigure.window);
 		return CLUTTER_X11_FILTER_CONTINUE;
 
 	case MapNotify:
-		DEBUG("Backend got MapNotify\n");
-		gpa_backend_clutter_event_map_notify(gpa, ev->xmap.window);
 		return CLUTTER_X11_FILTER_CONTINUE;
 
 	case UnmapNotify:
-		DEBUG("Backend got UnmapNotify\n");
-		gpa_backend_clutter_event_unmap_notify(gpa, ev->xmap.window);
 		return CLUTTER_X11_FILTER_CONTINUE;
 
 	case ClientMessage:
-		DEBUG("Backend got ClientMessage\n");
 		return CLUTTER_X11_FILTER_CONTINUE;
 
 	case PropertyNotify:
-		DEBUG("Backend got PropertyNotify\n");
 		return CLUTTER_X11_FILTER_CONTINUE;
 
 #if 0
@@ -483,10 +456,71 @@ gpa_backend_clutter_event_handle(GPaBackend *this, XEvent *ev, GPaClient *client
 
 	/* We need to push X event to clutter internal handler. */
 	clutter_x11_handle_event(ev);
-
 	event = clutter_event_get();
 	if (event) {
 		clutter_do_event(event);
 		clutter_event_free(event);
+	}
+
+	/* Handle X event by ourself */
+	switch (ev->type) {
+	case CreateNotify:
+		DEBUG("Backend got CreateNotify\n");
+		break;
+
+	case KeyPress:
+		break;
+
+	case KeyRelease:
+		break;
+
+	case ConfigureRequest:
+		DEBUG("Backend got ConfigureRequest\n");
+		break;
+
+	case MapRequest:
+		DEBUG("Backend got MapRequest\n");
+		break;
+
+	case DestroyNotify:
+		DEBUG("Backend got DestroyNotify\n");
+		gpa_backend_clutter_event_destroy_notify(gpa, client);
+		break;
+
+	case ConfigureNotify:
+		DEBUG("Backend got ConfigureNotify\n");
+		gpa_backend_clutter_event_configure_notify(gpa, client);
+		break;
+
+	case MapNotify:
+		DEBUG("Backend got MapNotify\n");
+		gpa_backend_clutter_event_map_notify(gpa, client);
+		break;
+
+	case UnmapNotify:
+		DEBUG("Backend got UnmapNotify\n");
+		gpa_backend_clutter_event_unmap_notify(gpa, client);
+		break;
+
+	case ClientMessage:
+		DEBUG("Backend got ClientMessage\n");
+		break;
+
+	case PropertyNotify:
+		DEBUG("Backend got PropertyNotify\n");
+		break;
+
+#if 0
+	/* Ignore these events for optimization */
+	case ButtonPress:
+	case EnterNotify:
+	case LeaveNotify:
+	case FocusIn:
+	case VisibilityNotify:
+	case ColormapNotify:
+	case MappingNotify:
+	case MotionNotify:
+	case SelectionNotify:
+#endif
 	}
 }
