@@ -476,81 +476,14 @@ void
 gpa_backend_clutter_event_handle(GPaBackend *this, XEvent *ev, GPaClient *client)
 {
 	GrandPa *gpa = this->gpa;
+	ClutterEvent *event;
 
-//	clutter_threads_enter();
-#if 1
 	/* We need to push X event to clutter internal handler. */
 	clutter_x11_handle_event(ev);
 
-	ClutterEvent *event = clutter_event_get();
+	event = clutter_event_get();
 	if (event) {
 		clutter_do_event(event);
 		clutter_event_free(event);
 	}
-
-//	clutter_threads_leave();
-	return;
-#endif
-	switch (ev->type) {
-	case CreateNotify:
-		DEBUG("Backend got CreateNotify\n");
-		break;
-
-	case KeyPress:
-		break;
-
-	case KeyRelease:
-		break;
-
-	case ConfigureRequest:
-		DEBUG("Backend got ConfigureRequest\n");
-		break;
-
-	case MapRequest:
-		DEBUG("Backend got MapRequest\n");
-		break;
-
-	case DestroyNotify:
-		DEBUG("Backend got DestroyNotify\n");
-		gpa_backend_clutter_event_destroy_notify(gpa, ev->xdestroywindow.window);
-		break;
-
-	case ConfigureNotify:
-		DEBUG("Backend got ConfigureNotify\n");
-		gpa_backend_clutter_event_configure_notify(gpa, ev->xconfigure.window);
-		break;
-
-	case MapNotify:
-		DEBUG("Backend got MapNotify\n");
-		gpa_backend_clutter_event_map_notify(gpa, ev->xmap.window);
-		break;
-
-	case UnmapNotify:
-		DEBUG("Backend got UnmapNotify\n");
-		gpa_backend_clutter_event_unmap_notify(gpa, ev->xmap.window);
-		break;
-
-	case ClientMessage:
-		DEBUG("Backend got ClientMessage\n");
-		break;
-
-	case PropertyNotify:
-		DEBUG("Backend got PropertyNotify\n");
-		break;
-
-#if 0
-	/* Ignore these events for optimization */
-	case ButtonPress:
-	case EnterNotify:
-	case LeaveNotify:
-	case FocusIn:
-	case VisibilityNotify:
-	case ColormapNotify:
-	case MappingNotify:
-	case MotionNotify:
-	case SelectionNotify:
-#endif
-	}
-
-//	clutter_threads_leave();
 }
