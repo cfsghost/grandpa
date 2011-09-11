@@ -168,6 +168,7 @@ gpa_backend_clutter_event_map_notify(GrandPa *gpa, Window w)
 	 */
 	cbclient = (GPaClutterBackendClient *)client->backend;
 	if (!cbclient) {
+		DEBUG("Create object Now\n");
 		cbclient = gpa_backend_clutter_create_client(gpa, w);
 		client->backend = cbclient;
 
@@ -181,7 +182,7 @@ gpa_backend_clutter_event_map_notify(GrandPa *gpa, Window w)
 	if (!cbclient->window)
 		return;
 
-	DEBUG("Mapping Window Type: %ld\n", client->type);
+	DEBUG("Mapping Window ID: %ld, Type: %ld\n", w, client->type);
 
 	clutter_actor_set_size(cbclient->window, client->width, client->height);
 	clutter_actor_set_position(cbclient->window, client->x, client->y);
@@ -442,6 +443,8 @@ gpa_backend_clutter_event_filter(XEvent *ev, ClutterEvent *cev, gpointer data)
 	case SelectionNotify:
 #endif
 	}
+
+	return CLUTTER_X11_FILTER_CONTINUE;
 }
 
 void

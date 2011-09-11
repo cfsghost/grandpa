@@ -502,8 +502,10 @@ gpa_eventdisp_property_notify(GrandPa *gpa, XEvent *ev)
 	if (!client)
 		return FALSE;
 
-	if (client->override_redirect)
+	if (client->override_redirect) {
+		DEBUG("PropertyNotify Override Redirect window\n");
 		return TRUE;
+	}
 
 	if (pe->atom == gpa->wm_transient_for) {
 		DEBUG("PropertyNotify WM_CHANGE_STATE\n");

@@ -29,8 +29,10 @@ gpa_backend_clutter_create_client(GrandPa *gpa, Window w)
 	cbclient = (GPaClutterBackendClient *)g_new0(GPaClutterBackendClient, 1);
 
     XGetWindowAttributes(gpa->display, w, &attr);
-    if (attr.class == InputOnly)
+    if (attr.class == InputOnly) {
+		DEBUG("This is InputOnly window\n");
         return cbclient;
+	}
 
 	cbclient->window = clutter_glx_texture_pixmap_new_with_window(w);
 	DEBUG("Create window texture\n");
