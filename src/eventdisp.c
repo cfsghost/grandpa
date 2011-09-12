@@ -21,6 +21,7 @@ static gboolean gpa_eventdisp_map_notify(GrandPa *gpa, XEvent *ev);
 static gboolean gpa_eventdisp_destroy_notify(GrandPa *gpa, XEvent *ev);
 static gboolean gpa_eventdisp_property_notify(GrandPa *gpa, XEvent *ev);
 static gboolean gpa_eventdisp_client_message(GrandPa *gpa, XEvent *ev);
+static gboolean gpa_eventdisp_circulate_request(GrandPa *gpa, XEvent *ev);
 static gboolean gpa_eventdisp_keypress(GrandPa *gpa, XEvent *ev);
 static gboolean gpa_eventdisp_keyrelease(GrandPa *gpa, XEvent *ev);
 
@@ -34,6 +35,7 @@ static EventDispatcher eventdisp[] = {
 	{DestroyNotify, gpa_eventdisp_destroy_notify},
 	{PropertyNotify, gpa_eventdisp_property_notify},
 	{ClientMessage, gpa_eventdisp_client_message},
+	{CirculateRequest, gpa_eventdisp_circulate_request},
 	{KeyPress, gpa_eventdisp_keypress},
 	{KeyRelease, gpa_eventdisp_keyrelease},
 };
@@ -611,6 +613,14 @@ gpa_eventdisp_client_message(GrandPa *gpa, XEvent *ev)
 
 	/* event handler of backend */
 	gpa_backend_handle_event(gpa, ev, client);
+
+	return TRUE;
+}
+
+gboolean
+gpa_eventdisp_circulate_request(GrandPa *gpa, XEvent *ev)
+{
+	DEBUG("Circulate Request\n");
 
 	return TRUE;
 }
