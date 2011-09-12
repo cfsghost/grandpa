@@ -12,8 +12,9 @@
 void
 gpa_backend_clutter_window_destroy_completed(ClutterAnimation *animation, gpointer user_data)
 {
-	GPaClient *client = (GPaClient *)user_data;
-	GPaClutterBackendClient *cbclient = (GPaClutterBackendClient *)client->backend;
+//	GPaClient *client = (GPaClient *)user_data;
+//	GPaClutterBackendClient *cbclient = (GPaClutterBackendClient *)client->backend;
+	GPaClutterBackendClient *cbclient = (GPaClutterBackendClient *)user_data;
 
 	if (!cbclient)
 		return;
@@ -28,16 +29,19 @@ gpa_backend_clutter_window_destroy_completed(ClutterAnimation *animation, gpoint
 void
 gpa_backend_clutter_unmap_completed(ClutterAnimation *animation, gpointer user_data)
 {
-	GPaClient *client = (GPaClient *)user_data;
-	GPaClutterBackendClient *cbclient = (GPaClutterBackendClient *)client->backend;
+//	GPaClient *client = (GPaClient *)user_data;
+//	GPaClutterBackendClient *cbclient = (GPaClutterBackendClient *)client->backend;
+	GPaClutterBackendClient *cbclient = (GPaClutterBackendClient *)user_data;
 
 	if (!cbclient)
 		return;
 
-	clutter_actor_hide(cbclient->window);
-	cbclient->state = GPaCBClientStateNone;
-
-	DEBUG("Window %ld was unmapped\n", client->window);
+	if (cbclient->state & GPaCBClientStateDestroying) {
+		gpa_backend_clutter_window_destroy_completed(NULL, cbclient);
+	} else {
+		clutter_actor_hide(cbclient->window);
+		cbclient->state = GPaCBClientStateNone;
+	}
 }
 
 void

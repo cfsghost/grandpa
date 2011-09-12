@@ -14,9 +14,9 @@
 
 typedef enum {
 	GPaCBClientStateNone,
-	GPaCBClientStateMapping,
-	GPaCBClientStateUnmapping,
-	GPaCBClientStateDestroying
+	GPaCBClientStateMapping     = (1 << 0),
+	GPaCBClientStateUnmapping   = (1 << 1),
+	GPaCBClientStateDestroying  = (1 << 2)
 } GPaClientIState;
 
 typedef struct {

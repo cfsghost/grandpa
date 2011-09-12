@@ -55,22 +55,26 @@ gpa_backend_clutter_event_destroy_notify(GrandPa *gpa, GPaClient *client)
 	if (!cbclient)
 		return;
 
-	if (cbclient->state == GPaCBClientStateDestroying ||
-		cbclient->state == GPaCBClientStateUnmapping)
+	if (cbclient->state & GPaCBClientStateDestroying)
 		return;
 
-	cbclient->state = GPaCBClientStateDestroying;
-	if (cbclient->window) {
-		if (client->never_map) {
-			gpa_backend_clutter_window_destroy_completed(NULL, client);
-			return;
-		}
+	if (cbclient->state & GPaCBClientStateUnmapping) {
+		cbclient->state |= GPaCBClientStateDestroying;
+		return;
+	}
 
+	gpa_backend_clutter_window_destroy_completed(NULL, cbclient);
+//	if (cbclient->window) {
+//		if (client->never_map) {
+//			gpa_backend_clutter_window_destroy_completed(NULL, cbclient);
+//			return;
+//		}
+/*
 		clutter_actor_destroy(cbclient->window);
 
 		g_free(cbclient);
-
-		DEBUG("Window %ld was destroyed\n", client->window);
+*/
+//		DEBUG("Window %ld was destroyed\n", client->window);
 #if 0
 		clutter_x11_texture_pixmap_set_automatic(cbclient->window, FALSE);
 		clutter_actor_show(cbclient->window);
@@ -90,7 +94,7 @@ gpa_backend_clutter_event_destroy_notify(GrandPa *gpa, GPaClient *client)
 				NULL);
 		}
 #endif
-	}
+//	}
 
 //	DEBUG("clutter backend destroy notify\n");
 }
@@ -106,6 +110,8 @@ gpa_backend_clutter_event_unmap_notify(GrandPa *gpa, GPaClient *client)
 	if (client->priv_window)
 		return;
 
+	DEBUG("Window %ld was unmapping\n", client->window);
+
 	cbclient = (GPaClutterBackendClient *)client->backend;
 	if (!cbclient)
 		return;
@@ -113,22 +119,23 @@ gpa_backend_clutter_event_unmap_notify(GrandPa *gpa, GPaClient *client)
 	if (!cbclient->window)
 		return;
 
-	if (cbclient->state == GPaCBClientStateUnmapping)
+	if (cbclient->state & GPaCBClientStateUnmapping)
 		return;
 
+	cbclient->state |= GPaCBClientStateUnmapping;
 	clutter_x11_texture_pixmap_set_automatic((ClutterX11TexturePixmap *)cbclient->window, FALSE);
-	cbclient->state = GPaCBClientStateUnmapping;
 
 	if (client->trans != None || client->override_redirect) {
 		if (client->type == WTypeDialog) {
 			clutter_actor_animate(cbclient->window, CLUTTER_EASE_OUT_CUBIC, 420,
 				"scale-x", 0.0,
 				"scale-y", 0.0,
+				"signal-after::completed", gpa_backend_clutter_unmap_completed, cbclient,
 				NULL);
 		} else {
 			clutter_actor_animate(cbclient->window, CLUTTER_EASE_OUT_CUBIC, 420,
 				"opacity", 0x00,
-				"signal-after::completed", gpa_backend_clutter_unmap_completed, client,
+				"signal-after::completed", gpa_backend_clutter_unmap_completed, cbclient,
 				NULL);
 		}
 	} else {
@@ -136,13 +143,11 @@ gpa_backend_clutter_event_unmap_notify(GrandPa *gpa, GPaClient *client)
 		clutter_actor_animate(cbclient->window, CLUTTER_EASE_OUT_CUBIC, 420,
 			"scale-x", 0.0,
 			"scale-y", 0.0,
-			"signal-after::completed", gpa_backend_clutter_unmap_completed, client,
+			"signal-after::completed", gpa_backend_clutter_unmap_completed, cbclient,
 			NULL);
 //	} else {
 //		gpa_backend_clutter_unmap_completed(NULL, client);
 	}
-
-	DEBUG("Window %ld was unmapping\n", client->window);
 }
 
 static void
