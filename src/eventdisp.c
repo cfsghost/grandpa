@@ -22,6 +22,7 @@ static gboolean gpa_eventdisp_destroy_notify(GrandPa *gpa, XEvent *ev);
 static gboolean gpa_eventdisp_property_notify(GrandPa *gpa, XEvent *ev);
 static gboolean gpa_eventdisp_client_message(GrandPa *gpa, XEvent *ev);
 static gboolean gpa_eventdisp_circulate_request(GrandPa *gpa, XEvent *ev);
+static gboolean gpa_eventdisp_buttonpress(GrandPa *gpa, XEvent *ev);
 static gboolean gpa_eventdisp_keypress(GrandPa *gpa, XEvent *ev);
 static gboolean gpa_eventdisp_keyrelease(GrandPa *gpa, XEvent *ev);
 
@@ -36,6 +37,7 @@ static EventDispatcher eventdisp[] = {
 	{PropertyNotify, gpa_eventdisp_property_notify},
 	{ClientMessage, gpa_eventdisp_client_message},
 	{CirculateRequest, gpa_eventdisp_circulate_request},
+	{ButtonPress, gpa_eventdisp_buttonpress},
 	{KeyPress, gpa_eventdisp_keypress},
 	{KeyRelease, gpa_eventdisp_keyrelease},
 };
@@ -556,23 +558,17 @@ gpa_eventdisp_client_message(GrandPa *gpa, XEvent *ev)
 			DEBUG("ClientMessage WM_CHANGE_STATE\n");
 
 			return TRUE;
-		}
-
-		if (cme->message_type == gpa->ewmh_atoms[_NET_CLOSE_WINDOW]) {
+		} else if (cme->message_type == gpa->ewmh_atoms[_NET_CLOSE_WINDOW]) {
 			DEBUG("ClientMessage _NET_CLOSE_WINDOW\n");
 
 			return TRUE;
-		}
-		
-		if (cme->message_type == gpa->ewmh_atoms[_NET_WM_STATE]) {
+		} else if (cme->message_type == gpa->ewmh_atoms[_NET_WM_STATE]) {
 			DEBUG("ClientMessage _NET_WM_STATE\n");
 			gpa_ewmh_state_trigger(gpa, client, cme->data.l[0], cme->data.l[1]);
 			gpa_ewmh_state_trigger(gpa, client, cme->data.l[0], cme->data.l[2]);
 
 			return TRUE;
-		}
-
-		if (cme->message_type == gpa->ewmh_atoms[_NET_MOVERESIZE_WINDOW]) {
+		} else if (cme->message_type == gpa->ewmh_atoms[_NET_MOVERESIZE_WINDOW]) {
 			XEvent nev;
 
 			DEBUG("ClientMessage _NET_MOVERESIZE_WINDOW\n");
@@ -595,9 +591,7 @@ gpa_eventdisp_client_message(GrandPa *gpa, XEvent *ev)
 			gpa_eventdisp_configure_request(gpa, &nev);
 
 			return TRUE;
-		}
-
-		if (cme->message_type == gpa->ewmh_atoms[_NET_ACTIVE_WINDOW]) {
+		} else if (cme->message_type == gpa->ewmh_atoms[_NET_ACTIVE_WINDOW]) {
 			DEBUG("ClientMessage _NET_ACTIVE_WINDOW\n");
 
 //			XMapRaised(gpa->display, client->window);
@@ -621,6 +615,14 @@ gboolean
 gpa_eventdisp_circulate_request(GrandPa *gpa, XEvent *ev)
 {
 	DEBUG("Circulate Request\n");
+
+	return TRUE;
+}
+
+gboolean
+gpa_eventdisp_buttonpress(GrandPa *gpa, XEvent *ev)
+{
+	DEBUG("Button Press\n");
 
 	return TRUE;
 }
