@@ -120,10 +120,17 @@ gpa_backend_clutter_event_unmap_notify(GrandPa *gpa, GPaClient *client)
 	cbclient->state = GPaCBClientStateUnmapping;
 
 	if (client->trans != None || client->override_redirect) {
-		clutter_actor_animate(cbclient->window, CLUTTER_EASE_OUT_CUBIC, 400,
-			"opacity", 0x00,
-			"signal-after::completed", gpa_backend_clutter_unmap_completed, client,
-			NULL);
+		if (client->type == WTypeDialog) {
+			clutter_actor_animate(cbclient->window, CLUTTER_EASE_OUT_CUBIC, 400,
+				"scale-x", 0.0,
+				"scale-y", 0.0,
+				NULL);
+		} else {
+			clutter_actor_animate(cbclient->window, CLUTTER_EASE_OUT_CUBIC, 400,
+				"opacity", 0x00,
+				"signal-after::completed", gpa_backend_clutter_unmap_completed, client,
+				NULL);
+		}
 	} else {
 		clutter_actor_set_scale_with_gravity(cbclient->window, 1.0, 1.0, CLUTTER_GRAVITY_CENTER);
 		clutter_actor_animate(cbclient->window, CLUTTER_EASE_OUT_CUBIC, 600,
@@ -189,10 +196,18 @@ gpa_backend_clutter_event_map_notify(GrandPa *gpa, GPaClient *client)
 	 * so we check menu window with WM_TRANSIENT_FOR and OverrideRedirect.
 	 */
 	if (client->trans != None || client->override_redirect) {
-		clutter_actor_set_opacity(cbclient->window, 0x00);
-		clutter_actor_animate(cbclient->window, CLUTTER_EASE_OUT_CUBIC, 400,
-			"opacity", 0xff,
-			NULL);
+		if (client->type == WTypeDialog) {
+			clutter_actor_set_scale_with_gravity(cbclient->window, 0.1, 0.1, CLUTTER_GRAVITY_CENTER);
+			clutter_actor_animate(cbclient->window, CLUTTER_EASE_OUT_ELASTIC, 600,
+				"scale-x", 1.0,
+				"scale-y", 1.0,
+				NULL);
+		} else {
+			clutter_actor_set_opacity(cbclient->window, 0x00);
+			clutter_actor_animate(cbclient->window, CLUTTER_EASE_OUT_CUBIC, 400,
+				"opacity", 0xff,
+				NULL);
+		}
 	} else {
 		clutter_actor_set_scale_with_gravity(cbclient->window, 0.1, 0.1, CLUTTER_GRAVITY_CENTER);
 //		clutter_actor_animate(cbclient->window, CLUTTER_EASE_OUT_CUBIC, 600,
