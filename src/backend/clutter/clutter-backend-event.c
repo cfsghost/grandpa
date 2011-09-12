@@ -133,7 +133,7 @@ gpa_backend_clutter_event_unmap_notify(GrandPa *gpa, GPaClient *client)
 		}
 	} else {
 		clutter_actor_set_scale_with_gravity(cbclient->window, 1.0, 1.0, CLUTTER_GRAVITY_CENTER);
-		clutter_actor_animate(cbclient->window, CLUTTER_EASE_OUT_CUBIC, 600,
+		clutter_actor_animate(cbclient->window, CLUTTER_EASE_OUT_CUBIC, 420,
 			"scale-x", 0.0,
 			"scale-y", 0.0,
 			"signal-after::completed", gpa_backend_clutter_unmap_completed, client,
