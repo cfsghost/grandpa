@@ -63,6 +63,7 @@ gpa_backend_clutter_event_destroy_notify(GrandPa *gpa, GPaClient *client)
 		return;
 	}
 
+	clutter_x11_texture_pixmap_set_automatic((ClutterX11TexturePixmap *)cbclient->window, FALSE);
 	gpa_backend_clutter_window_destroy_completed(NULL, cbclient);
 }
 
