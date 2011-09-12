@@ -66,12 +66,10 @@ typedef struct {
 } GPaScreenManager;
 
 struct _GPaBackendManager;
-struct _GPaClientManager;
 typedef struct {
 	Display *display;
 	struct _GPaBackendManager *backend;
 	GPaScreenManager *screen;
-	struct _GPaClientManager *client;
 
 	Atom wm_state;
 	Atom wm_change_state;
