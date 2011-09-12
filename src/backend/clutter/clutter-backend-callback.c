@@ -19,11 +19,10 @@ gpa_backend_clutter_window_destroy_completed(ClutterAnimation *animation, gpoint
 	if (!cbclient)
 		return;
 
+	clutter_actor_hide(cbclient->window);
 	clutter_actor_destroy(cbclient->window);
 
 	g_free(cbclient);
-
-	DEBUG("Window was destroyed\n");
 }
 
 void

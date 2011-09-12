@@ -434,6 +434,9 @@ gpa_eventdisp_map_request(GrandPa *gpa, XEvent *ev)
 	/* event handler of backend */
 	gpa_backend_handle_event(gpa, ev, client);
 
+	/* update client list */
+	gpa_client_update(gpa);
+
 	return TRUE;
 }
 
@@ -448,10 +451,12 @@ gpa_eventdisp_unmap_notify(GrandPa *gpa, XEvent *ev)
 		return FALSE;
 
 	if (client->state == NormalState) {
-		XGrabServer(gpa->display);
+//		XGrabServer(gpa->display);
 		gpa_client_set_state(gpa, client, WithdrawnState);
-		XUngrabServer(gpa->display);
+//		XUngrabServer(gpa->display);
 	}
+
+	DEBUG("Unmapping window id: %ld\n", xue->window);
 
 	/* event handler of backend */
 	gpa_backend_handle_event(gpa, ev, client);
@@ -481,6 +486,8 @@ gpa_eventdisp_destroy_notify(GrandPa *gpa, XEvent *ev)
 	XDestroyWindowEvent *de = &ev->xdestroywindow;
 	GPaClient *client;
 
+	DEBUG("DestroyNotify window id: %ld\n", de->window);
+
 	client = gpa_client_remove_with_window(gpa, de->window);
 	if (!client)
 		return FALSE;
@@ -490,8 +497,6 @@ gpa_eventdisp_destroy_notify(GrandPa *gpa, XEvent *ev)
 
 	/* TODO: release client structure */
 	gpa_client_destroy(gpa, client);
-
-	DEBUG("DestroyNotify window id: %ld\n", de->window);
 
 	return TRUE;
 }
@@ -513,7 +518,9 @@ gpa_eventdisp_property_notify(GrandPa *gpa, XEvent *ev)
 		return TRUE;
 	}
 
-	if (pe->atom == gpa->wm_transient_for) {
+	if (pe->atom == gpa->wm_name || pe->atom == gpa->mozilla_url) {
+		DEBUG("PropertyNotify WM_NAME\n");
+	} else if (pe->atom == gpa->wm_transient_for) {
 		DEBUG("PropertyNotify WM_CHANGE_STATE\n");
 		/* get WM_TRANSIENT_FOR */
 		XGetTransientForHint(gpa->display, client->window, &client->trans);

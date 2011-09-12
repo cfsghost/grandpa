@@ -81,6 +81,8 @@ typedef struct {
 	Atom wm_colormaps;
 	Atom wm_transient_for;
 	Atom wm_normal_hints;
+	Atom wm_name;
+	Atom mozilla_url;
 	Atom compound_text;
 	Atom ewmh_atoms[EWMH_ATOM_LAST];
 	Atom utf8_string;

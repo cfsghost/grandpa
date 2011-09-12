@@ -29,6 +29,10 @@ gpa_ewmh_init(GrandPa *gpa)
 		XInternAtom(gpa->display, "WM_TRANSIENT_FOR", False);
 	gpa->wm_normal_hints = 
 		XInternAtom(gpa->display, "WM_NORMAL_HINTS", False);
+	gpa->wm_name =
+		XInternAtom(gpa->display, "WM_NAME", False);
+	gpa->mozilla_url =
+		XInternAtom(gpa->display, "_MOZILLA_URL", False);
 
 	/* build half a million EWMH atoms */
 	gpa->ewmh_atoms[_NET_SUPPORTED] =

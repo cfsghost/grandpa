@@ -64,39 +64,6 @@ gpa_backend_clutter_event_destroy_notify(GrandPa *gpa, GPaClient *client)
 	}
 
 	gpa_backend_clutter_window_destroy_completed(NULL, cbclient);
-//	if (cbclient->window) {
-//		if (client->never_map) {
-//			gpa_backend_clutter_window_destroy_completed(NULL, cbclient);
-//			return;
-//		}
-/*
-		clutter_actor_destroy(cbclient->window);
-
-		g_free(cbclient);
-*/
-//		DEBUG("Window %ld was destroyed\n", client->window);
-#if 0
-		clutter_x11_texture_pixmap_set_automatic(cbclient->window, FALSE);
-		clutter_actor_show(cbclient->window);
-
-		/* menu window */
-		if (client->trans != None || client->override_redirect) {
-			clutter_actor_animate(cbclient->window, CLUTTER_EASE_OUT_CUBIC, 800,
-				"opacity", 0x00,
-				"signal-after::completed", gpa_backend_clutter_window_destroy_completed, client,
-				NULL);
-		} else {
-			clutter_actor_set_scale_with_gravity(cbclient->window, 1.0, 1.0, CLUTTER_GRAVITY_CENTER);
-			clutter_actor_animate(cbclient->window, CLUTTER_EASE_OUT_CUBIC, 800,
-				"scale-x", 0.0,
-				"scale-y", 0.0,
-				"signal-after::completed", gpa_backend_clutter_window_destroy_completed, client,
-				NULL);
-		}
-#endif
-//	}
-
-//	DEBUG("clutter backend destroy notify\n");
 }
 
 static void
@@ -110,7 +77,7 @@ gpa_backend_clutter_event_unmap_notify(GrandPa *gpa, GPaClient *client)
 	if (client->priv_window)
 		return;
 
-	DEBUG("Window %ld was unmapping\n", client->window);
+	DEBUG("Window %ld was unmapping, type: %d\n", client->window, client->type);
 
 	cbclient = (GPaClutterBackendClient *)client->backend;
 	if (!cbclient)
@@ -145,8 +112,6 @@ gpa_backend_clutter_event_unmap_notify(GrandPa *gpa, GPaClient *client)
 			"scale-y", 0.0,
 			"signal-after::completed", gpa_backend_clutter_unmap_completed, cbclient,
 			NULL);
-//	} else {
-//		gpa_backend_clutter_unmap_completed(NULL, client);
 	}
 }
 
@@ -203,7 +168,7 @@ gpa_backend_clutter_event_map_notify(GrandPa *gpa, GPaClient *client)
 	if (client->trans != None || client->override_redirect) {
 		if (client->type == WTypeDialog) {
 			clutter_actor_set_scale_with_gravity(cbclient->window, 0.1, 0.1, CLUTTER_GRAVITY_CENTER);
-			clutter_actor_animate(cbclient->window, CLUTTER_EASE_OUT_ELASTIC, 600,
+			clutter_actor_animate(cbclient->window, CLUTTER_EASE_OUT_ELASTIC, 840,
 				"scale-x", 1.0,
 				"scale-y", 1.0,
 				NULL);
@@ -311,7 +276,7 @@ _gpa_backend_clutter_event_filter(XEvent *ev, ClutterEvent *cev, gpointer data)
 		return CLUTTER_X11_FILTER_CONTINUE;
 	}
 }
-#endif
+
 static gboolean
 gpa_backend_clutter_event_prepare(GSource *source, gint *timeout)
 {
@@ -382,6 +347,7 @@ static GSourceFuncs gpa_backend_clutter_event_funcs = {
 	gpa_backend_clutter_event_dispatch,
 	NULL
 };
+#endif
 
 static ClutterX11FilterReturn
 gpa_backend_clutter_event_filter(XEvent *ev, ClutterEvent *cev, gpointer data)
@@ -390,7 +356,8 @@ gpa_backend_clutter_event_filter(XEvent *ev, ClutterEvent *cev, gpointer data)
 
 	switch (ev->type) {
 	case CreateNotify:
-		return CLUTTER_X11_FILTER_CONTINUE;
+//		return CLUTTER_X11_FILTER_CONTINUE;
+		return CLUTTER_X11_FILTER_REMOVE;
 
 	case KeyPress:
 		return CLUTTER_X11_FILTER_CONTINUE;
@@ -405,7 +372,8 @@ gpa_backend_clutter_event_filter(XEvent *ev, ClutterEvent *cev, gpointer data)
 		return CLUTTER_X11_FILTER_REMOVE;
 
 	case DestroyNotify:
-		return CLUTTER_X11_FILTER_CONTINUE;
+		return CLUTTER_X11_FILTER_REMOVE;
+//		return CLUTTER_X11_FILTER_CONTINUE;
 
 	case ConfigureNotify:
 		return CLUTTER_X11_FILTER_CONTINUE;
