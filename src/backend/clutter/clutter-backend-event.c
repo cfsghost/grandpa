@@ -121,12 +121,12 @@ gpa_backend_clutter_event_unmap_notify(GrandPa *gpa, GPaClient *client)
 
 	if (client->trans != None || client->override_redirect) {
 		if (client->type == WTypeDialog) {
-			clutter_actor_animate(cbclient->window, CLUTTER_EASE_OUT_CUBIC, 400,
+			clutter_actor_animate(cbclient->window, CLUTTER_EASE_OUT_CUBIC, 420,
 				"scale-x", 0.0,
 				"scale-y", 0.0,
 				NULL);
 		} else {
-			clutter_actor_animate(cbclient->window, CLUTTER_EASE_OUT_CUBIC, 400,
+			clutter_actor_animate(cbclient->window, CLUTTER_EASE_OUT_CUBIC, 420,
 				"opacity", 0x00,
 				"signal-after::completed", gpa_backend_clutter_unmap_completed, client,
 				NULL);
@@ -204,7 +204,7 @@ gpa_backend_clutter_event_map_notify(GrandPa *gpa, GPaClient *client)
 				NULL);
 		} else {
 			clutter_actor_set_opacity(cbclient->window, 0x00);
-			clutter_actor_animate(cbclient->window, CLUTTER_EASE_OUT_CUBIC, 400,
+			clutter_actor_animate(cbclient->window, CLUTTER_EASE_OUT_CUBIC, 420,
 				"opacity", 0xff,
 				NULL);
 		}
