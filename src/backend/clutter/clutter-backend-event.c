@@ -154,13 +154,12 @@ gpa_backend_clutter_event_map_notify(GrandPa *gpa, GPaClient *client)
 	 */
 	cbclient = (GPaClutterBackendClient *)client->backend;
 	if (!cbclient) {
-		DEBUG("Create object Now\n");
 		cbclient = gpa_backend_clutter_create_client(gpa, client->window);
-		client->backend = cbclient;
-
-		if (!cbclient->window)
+		if (!cbclient)
 			return;
 
+		DEBUG("Create object Now\n");
+		client->backend = cbclient;
 		clutter_actor_hide(cbclient->window);
 		clutter_container_add_actor(CLUTTER_CONTAINER(GPA_BACKEND_CLUTTER_SCREEN(client->screen->backend)->viewport), cbclient->window);
 	}
@@ -174,12 +173,12 @@ gpa_backend_clutter_event_map_notify(GrandPa *gpa, GPaClient *client)
 	clutter_actor_set_position(cbclient->window, client->x, client->y);
 
 //	if (clutter_actor_get_parent(cbclient->window) == NULL) {
-		DEBUG("Add object to current stage and start to update window content on actor automatically\n");
+	DEBUG("Start to update window content automatically\n");
 
-		clutter_x11_texture_pixmap_set_automatic((ClutterX11TexturePixmap *)cbclient->window, TRUE);
+	clutter_x11_texture_pixmap_set_automatic((ClutterX11TexturePixmap *)cbclient->window, TRUE);
 //	}
 
-	clutter_actor_raise_top(cbclient->window);
+//	clutter_actor_raise_top(cbclient->window);
 	clutter_actor_show(cbclient->window);
 
 	DEBUG("GET SIZ %lfx%lf\n", clutter_actor_get_width(cbclient->window), clutter_actor_get_height(cbclient->window));

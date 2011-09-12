@@ -15,6 +15,9 @@ gpa_backend_clutter_window_destroy_completed(ClutterAnimation *animation, gpoint
 	GPaClient *client = (GPaClient *)user_data;
 	GPaClutterBackendClient *cbclient = (GPaClutterBackendClient *)client->backend;
 
+	if (!cbclient)
+		return;
+
 	clutter_actor_destroy(cbclient->window);
 
 	g_free(cbclient);
@@ -27,6 +30,9 @@ gpa_backend_clutter_unmap_completed(ClutterAnimation *animation, gpointer user_d
 {
 	GPaClient *client = (GPaClient *)user_data;
 	GPaClutterBackendClient *cbclient = (GPaClutterBackendClient *)client->backend;
+
+	if (!cbclient)
+		return;
 
 	clutter_actor_hide(cbclient->window);
 	cbclient->state = GPaCBClientStateNone;

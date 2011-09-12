@@ -318,8 +318,6 @@ gpa_eventdisp_configure_notify(GrandPa *gpa, XEvent *ev)
 	XConfigureEvent *ce = &ev->xconfigure;
 	GPaClient *client;
 
-	DEBUG("gpa_eventdisp_configure_notify()\n");
-
 	/* Trigger Xrandr extension */
 	XRRUpdateConfiguration(ev);
 
@@ -330,6 +328,8 @@ gpa_eventdisp_configure_notify(GrandPa *gpa, XEvent *ev)
 
 	if (client->priv_window)
 		return FALSE;
+
+	DEBUG("ConfigureNotify window: %d\n", client->window);
 
 	/* Update */
 	gpa_client_property_update(gpa, client);
