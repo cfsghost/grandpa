@@ -389,7 +389,8 @@ gpa_backend_clutter_event_filter(XEvent *ev, ClutterEvent *cev, gpointer data)
 		return CLUTTER_X11_FILTER_CONTINUE;
 
 	case PropertyNotify:
-		return CLUTTER_X11_FILTER_CONTINUE;
+		return CLUTTER_X11_FILTER_REMOVE;
+		//return CLUTTER_X11_FILTER_CONTINUE;
 
 #if 0
 	/* Ignore these events for optimization */
