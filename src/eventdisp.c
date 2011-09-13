@@ -550,6 +550,8 @@ gpa_eventdisp_property_notify(GrandPa *gpa, XEvent *ev)
 		return TRUE;
 	} else if (pe->atom == gpa->wm_normal_hints) {
 		DEBUG("PropertyNotify XA_WM_NORMAL_HINTS\n");
+	} else if (pe->atom == gpa->ewmh_atoms[_NET_WM_WINDOW_TYPE]) {
+		DEBUG("PropertyNotify _NET_WM_WINDOW_TYPE\n");
 	} else if (pe->atom == gpa->ewmh_atoms[_NET_WM_STRUT]) {
 		DEBUG("PropertyNotify _NET_WM_STRUT\n");
 	}
@@ -619,6 +621,8 @@ gpa_eventdisp_client_message(GrandPa *gpa, XEvent *ev)
 			xwc.stack_mode = cme->data.l[2];
 
 			XConfigureWindow(gpa->display, cme->window, CWSibling | CWStackMode, &xwc);
+
+			return TRUE;
 		} else if (cme->message_type == gpa->ewmh_atoms[_NET_ACTIVE_WINDOW]) {
 			DEBUG("ClientMessage _NET_ACTIVE_WINDOW\n");
 
