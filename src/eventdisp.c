@@ -462,6 +462,7 @@ gpa_eventdisp_unmap_notify(GrandPa *gpa, XEvent *ev)
 
 	if (client->state == NormalState) {
 //		XGrabServer(gpa->display);
+		XUnmapWindow(gpa->display, client->window);
 		gpa_client_set_state(gpa, client, WithdrawnState);
 //		XUngrabServer(gpa->display);
 
