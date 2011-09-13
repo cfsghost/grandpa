@@ -610,6 +610,15 @@ gpa_eventdisp_client_message(GrandPa *gpa, XEvent *ev)
 			gpa_eventdisp_configure_request(gpa, &nev);
 
 			return TRUE;
+		} else if (cme->message_type == gpa->ewmh_atoms[_NET_RESTACK_WINDOW]) {
+			XWindowChanges xwc;
+
+			DEBUG("ClientMessage _NET_RESTACK_WINDOW\n");
+
+			xwc.sibling = cme->data.l[1];
+			xwc.stack_mode = cme->data.l[2];
+
+			XConfigureWindow(gpa->display, cme->window, CWSibling | CWStackMode, &xwc);
 		} else if (cme->message_type == gpa->ewmh_atoms[_NET_ACTIVE_WINDOW]) {
 			DEBUG("ClientMessage _NET_ACTIVE_WINDOW\n");
 

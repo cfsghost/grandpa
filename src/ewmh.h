@@ -21,6 +21,7 @@ typedef enum {
 	_NET_CLOSE_WINDOW,
 	_NET_MOVERESIZE_WINDOW,
 	_NET_WM_MOVERESIZE,
+	_NET_RESTACK_WINDOW,
 /* application window properties */
 	_NET_WM_NAME,
 	/*_NET_WM_VISIBLE_NAME,*/

@@ -61,6 +61,8 @@ gpa_ewmh_init(GrandPa *gpa)
 		XInternAtom(gpa->display, "_NET_MOVERESIZE_WINDOW", False);
 	gpa->ewmh_atoms[_NET_WM_MOVERESIZE] =
 		XInternAtom(gpa->display, "_NET_WM_MOVERESIZE", False);
+	gpa->ewmh_atoms[_NET_RESTACK_WINDOW] =
+		XInternAtom(gpa->display, "_NET_RESTACK_WINDOW", False);
 	gpa->ewmh_atoms[_NET_WM_NAME] =
 		XInternAtom(gpa->display, "_NET_WM_NAME", False);
 	gpa->ewmh_atoms[_NET_WM_WINDOW_TYPE] =
