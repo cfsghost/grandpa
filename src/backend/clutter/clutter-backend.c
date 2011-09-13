@@ -175,6 +175,7 @@ gpa_backend_clutter_screen_init(GPaBackend *this, GPaScreen *screen)
 	/* Setting X Window */
 	XReparentWindow(gpa->display, cbscreen->stage_window, screen->overlay, 0, 0);
 	XSelectInput(gpa->display, cbscreen->stage_window,
+		ButtonPressMask | ButtonReleaseMask |
 		ExposureMask | StructureNotifyMask);
 	XSync(gpa->display, FALSE);
 

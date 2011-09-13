@@ -392,9 +392,12 @@ gpa_backend_clutter_event_filter(XEvent *ev, ClutterEvent *cev, gpointer data)
 		return CLUTTER_X11_FILTER_REMOVE;
 		//return CLUTTER_X11_FILTER_CONTINUE;
 
+	case ButtonPress:
+		DEBUG("XCXXXXXXXXXXXXXXXXXXXXXXXx\n");
+		return CLUTTER_X11_FILTER_CONTINUE;
+		
 #if 0
 	/* Ignore these events for optimization */
-	case ButtonPress:
 	case EnterNotify:
 	case LeaveNotify:
 	case FocusIn:

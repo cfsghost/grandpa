@@ -158,7 +158,7 @@ gpa_screenmgr_screen_input_configure(GrandPa *gpa, GPaScreen *screen)
 		InputOnly, DefaultVisual(gpa->display, 0), 0, NULL);
 
 	XSelectInput(gpa->display, screen->input_win,
-		StructureNotifyMask | FocusChangeMask | PointerMotionMask |
+		StructureNotifyMask | PointerMotionMask |
 		KeyPressMask | KeyReleaseMask | ButtonPressMask |
 		ButtonReleaseMask | PropertyChangeMask);
 
@@ -188,6 +188,7 @@ gpa_screenmgr_screen_configure(GrandPa *gpa, GPaScreen *screen)
 	attr.event_mask = SubstructureRedirectMask |
 		SubstructureNotifyMask |
 		StructureNotifyMask |
+		FocusChangeMask |
 		PropertyChangeMask;
 
 	XChangeWindowAttributes(gpa->display, screen->root, CWEventMask, &attr);

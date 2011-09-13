@@ -32,11 +32,14 @@ typedef enum {
 	GPA_MODE_CONTROLBAR
 } GPaMode;
 
+typedef struct _GPaClient GPaClient;
 typedef struct _GPaScreen {
 	gint id;
 	Window root;
 	Window overlay;
 	Window input_win;
+	GPaClient *current_client;
+	GPaClient *last_client;
 
 	/* Display size */
 	gint width;

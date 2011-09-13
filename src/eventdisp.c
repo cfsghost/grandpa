@@ -22,6 +22,8 @@ static gboolean gpa_eventdisp_destroy_notify(GrandPa *gpa, XEvent *ev);
 static gboolean gpa_eventdisp_property_notify(GrandPa *gpa, XEvent *ev);
 static gboolean gpa_eventdisp_client_message(GrandPa *gpa, XEvent *ev);
 static gboolean gpa_eventdisp_circulate_request(GrandPa *gpa, XEvent *ev);
+static gboolean gpa_eventdisp_focusin(GrandPa *gpa, XEvent *ev);
+static gboolean gpa_eventdisp_focusout(GrandPa *gpa, XEvent *ev);
 static gboolean gpa_eventdisp_buttonpress(GrandPa *gpa, XEvent *ev);
 static gboolean gpa_eventdisp_keypress(GrandPa *gpa, XEvent *ev);
 static gboolean gpa_eventdisp_keyrelease(GrandPa *gpa, XEvent *ev);
@@ -37,6 +39,8 @@ static EventDispatcher eventdisp[] = {
 	{PropertyNotify, gpa_eventdisp_property_notify},
 	{ClientMessage, gpa_eventdisp_client_message},
 	{CirculateRequest, gpa_eventdisp_circulate_request},
+	{FocusIn, gpa_eventdisp_focusin},
+	{FocusOut, gpa_eventdisp_focusout},
 	{ButtonPress, gpa_eventdisp_buttonpress},
 	{KeyPress, gpa_eventdisp_keypress},
 	{KeyRelease, gpa_eventdisp_keyrelease},
@@ -430,7 +434,7 @@ gpa_eventdisp_map_request(GrandPa *gpa, XEvent *ev)
 
 	gpa_client_raise(gpa, client);
 	gpa_client_set_state(gpa, client, NormalState);
-	gpa_client_set_active(gpa, client, TRUE);
+	gpa_client_set_focus(gpa, client, TRUE);
 
 	DEBUG("MapRequest \"%s\"\n", client->name);
 	DEBUG("MapRequest window %ld, size %ldx%ld on %ldx%ld\n", client->window, client->width, client->height, client->x, client->y);
@@ -454,13 +458,27 @@ gpa_eventdisp_unmap_notify(GrandPa *gpa, XEvent *ev)
 	if (!client)
 		return FALSE;
 
+	DEBUG("Unmapping window id: %ld\n", xue->window);
+
 	if (client->state == NormalState) {
 //		XGrabServer(gpa->display);
 		gpa_client_set_state(gpa, client, WithdrawnState);
 //		XUngrabServer(gpa->display);
-	}
 
-	DEBUG("Unmapping window id: %ld\n", xue->window);
+		/* This client is current active client */
+		if (client->screen->current_client) {
+			client->screen->current_client = NULL;
+			if (client->screen->last_client) {
+				DEBUG("Switch back to last client\n");
+				gpa_client_set_focus(gpa, client->screen->last_client, TRUE);
+			} else {
+				client->screen->current_client = NULL;
+				gpa_client_set_focus(gpa, client, FALSE);
+
+				/* TODO: Switch to top client */
+			}
+		}
+	}
 
 	/* event handler of backend */
 	gpa_backend_handle_event(gpa, ev, client);
@@ -615,6 +633,55 @@ gboolean
 gpa_eventdisp_circulate_request(GrandPa *gpa, XEvent *ev)
 {
 	DEBUG("Circulate Request\n");
+
+	return TRUE;
+}
+
+gboolean
+gpa_eventdisp_focusin(GrandPa *gpa, XEvent *ev)
+{
+	XFocusChangeEvent *fce = &ev->xfocus;
+	GPaClient *client;
+	GPaScreen *screen;
+	Window focus_window;
+	int revert;
+
+	DEBUG("Focus In - ID: %d\n", fce->window);
+
+	XGetInputFocus(gpa->display, &focus_window, &revert);
+	if (focus_window == None)
+		return TRUE;
+
+	if (focus_window == PointerRoot || focus_window == fce->window) {
+		screen = gpa_screenmgr_get_screen_with_internal_window(gpa, fce->window, GA_SCREEN_WINDOW_ROOT_WINDOW);
+
+		/* Stay in last client */
+		if (screen) {
+			DEBUG("Switch back to last client %d\n", screen->last_client);
+			gpa_client_set_focus(gpa, screen->last_client, TRUE);
+
+			/* TODO: Switch to top client if last_client is NULL */
+		}
+
+		return TRUE;
+	}
+
+	client = gpa_client_find_with_window(gpa, focus_window);
+	if (!client)
+		return FALSE;
+
+	gpa_client_set_focus(gpa, client, TRUE);
+	gpa_client_raise(gpa, client);
+
+	return TRUE;
+}
+
+gboolean
+gpa_eventdisp_focusout(GrandPa *gpa, XEvent *ev)
+{
+	XFocusChangeEvent *fce = &ev->xfocus;
+
+	DEBUG("Focus Out - ID: %d\n", fce->window);
 
 	return TRUE;
 }

@@ -438,16 +438,21 @@ gpa_ewmh_state_trigger(GrandPa *gpa, GPaClient *client, unsigned long action, un
 }
 
 void
-gpa_ewmh_set_active(GrandPa *gpa, GPaClient *client)
+gpa_ewmh_set_active(GrandPa *gpa, GPaClient *client, gboolean active)
 {
 	if (!client)
 		return;
 
-	/* Setting current active window of screen */
-	XChangeProperty(gpa->display, client->screen->root,
-		gpa->ewmh_atoms[_NET_ACTIVE_WINDOW],
-		XA_WINDOW, 32, PropModeReplace,
-		(unsigned char *)&client->window, 1);
+	if (active) {
+		/* Setting current active window of screen */
+		XChangeProperty(gpa->display, client->screen->root,
+			gpa->ewmh_atoms[_NET_ACTIVE_WINDOW],
+			XA_WINDOW, 32, PropModeReplace,
+			(unsigned char *)&client->window, 1);
+	} else {
+		XDeleteProperty(gpa->display, client->screen->root,
+			gpa->ewmh_atoms[_NET_ACTIVE_WINDOW]);
+	}
 }
 
 gchar *

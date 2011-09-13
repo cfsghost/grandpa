@@ -4,7 +4,8 @@
 #include "ewmh.h"
 
 struct _GPaScreen;
-typedef struct _GPaClient {
+typedef struct _GPaClient GPaClient;
+struct _GPaClient {
 	GrandPa *gpa;
 
 	struct _GPaScreen *screen;
@@ -27,10 +28,11 @@ typedef struct _GPaClient {
 	gboolean accepts_focus;
 	gboolean never_map;
 	gboolean priv_window;
-} GPaClient;
-
+};
 
 GPaClient *gpa_client_find_with_window(GrandPa *gpa, Window w);
 GPaClient *gpa_client_remove_with_window(GrandPa *gpa, Window w);
+void gpa_client_set_active(GrandPa *gpa, GPaClient *client, gboolean active);
+void gpa_client_raise(GrandPa *gpa, GPaClient *client);
 
 #endif

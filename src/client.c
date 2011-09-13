@@ -44,10 +44,36 @@ gpa_client_send_xclient_message(GrandPa *gpa, GPaClient *client, Atom a, long da
 }
 
 void
+gpa_client_set_focus(GrandPa *gpa, GPaClient *client, gboolean focus)
+{
+	if (!client)
+		return;
+
+	if (focus) {
+		if (client->screen->current_client == client)
+			return;
+
+		/* deactivate current */
+		if (client->screen->current_client) {
+			gpa_client_set_active(gpa, client->screen->current_client, FALSE);
+			client->screen->last_client = client->screen->current_client;
+		}
+
+		/* set client as current active client */
+		client->screen->current_client = client;
+		gpa_client_set_active(gpa, client, TRUE);
+	} else {
+		/* deactivate current */
+		gpa_client_set_active(gpa, client->screen->current_client, FALSE);
+	}
+}
+
+void
 gpa_client_set_active(GrandPa *gpa, GPaClient *client, gboolean active)
 {
 	if (active) {
 		if (client->accepts_focus) {
+			DEBUG("This client accepts focus - ID: %d\n", client->window);
 			XSetInputFocus(gpa->display,
 				client->window,
 				RevertToPointerRoot,
@@ -60,7 +86,9 @@ gpa_client_set_active(GrandPa *gpa, GPaClient *client, gboolean active)
 				0L);
 		}
 
-		gpa_ewmh_set_active(gpa, client);
+		gpa_ewmh_set_active(gpa, client, TRUE);
+	} else {
+		gpa_ewmh_set_active(gpa, client, FALSE);
 	}
 }
 
@@ -187,6 +215,13 @@ gpa_client_remove(GrandPa *gpa, GPaClient *client)
 
 	screen->clients = g_list_remove(screen->clients, (gconstpointer)client);
 	screen->client_count--;
+
+	/* Check current client and last client to empty it */
+	if (screen->last_client == client)
+		screen->last_client = NULL;
+
+	if (screen->current_client == client)
+		screen->current_client = NULL;
 
 	/* update client list of EWMH */
 	gpa_ewmh_client_list_update_with_screen(gpa, screen);
