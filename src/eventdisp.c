@@ -614,6 +614,7 @@ gpa_eventdisp_client_message(GrandPa *gpa, XEvent *ev)
 
 //			XMapRaised(gpa->display, client->window);
 			XMapWindow(gpa->display, client->window);
+			gpa_client_set_focus(gpa, client, TRUE);
 			gpa_client_raise(gpa, client);
 
 			/* update stack */
