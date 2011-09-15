@@ -305,6 +305,10 @@ gpa_eventdisp_configure_request(GrandPa *gpa, XEvent *ev)
 	if (!client)
 		return FALSE;
 
+	if (cre->value_mask & CWStackMode && cre->value_mask & CWSibling) {
+		DEBUG("CWStackMode || CWStackMode\n");
+	}
+
 	if (client->type == WTypeNormal) { 
 		xwc.x = 0;
 		xwc.y = 0;

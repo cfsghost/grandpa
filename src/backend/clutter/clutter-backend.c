@@ -20,22 +20,42 @@ gpa_backend_clutter_get_root_window(GPaBackend *this, GPaScreen *screen)
 	return cbscreen->stage_window;
 }
 
+ClutterActor *
+gpa_backend_clutter_create_overlay(gfloat width, gfloat height)
+{
+	ClutterActor *overlay;
+	ClutterColor color = { 0x00, 0x00, 0x00, 0xff};
+
+	DEBUG("Create a overlay actor\n");
+	overlay = clutter_rectangle_new_with_color(&color);
+	clutter_actor_set_size(overlay, width, height);
+	clutter_actor_set_opacity(overlay, 0xcc);
+
+	return overlay;
+}
+
 GPaClutterBackendClient *
-gpa_backend_clutter_create_client(GrandPa *gpa, Window w)
+gpa_backend_clutter_create_client(GrandPa *gpa, GPaClient *client)
 {
 	GPaClutterBackendClient *cbclient;
     XWindowAttributes attr; 
 
 	/* It doesn't need any real window */
-    XGetWindowAttributes(gpa->display, w, &attr);
+    XGetWindowAttributes(gpa->display, client->window, &attr);
     if (attr.class == InputOnly) {
 		DEBUG("This is InputOnly window\n");
         return NULL;
 	}
 
 	cbclient = (GPaClutterBackendClient *)g_new0(GPaClutterBackendClient, 1);
-	cbclient->window = clutter_glx_texture_pixmap_new_with_window(w);
+	cbclient->window = clutter_glx_texture_pixmap_new_with_window(client->window);
 	DEBUG("Create window texture\n");
+
+	/* Dialog Window */
+	if ((client->trans != None || client->override_redirect) && client->type == WTypeDialog) {
+		/* Creaye a overlay actor to be background */
+		cbclient->overlay = gpa_backend_clutter_create_overlay(1, 1);
+	}
 
 	return cbclient;
 }

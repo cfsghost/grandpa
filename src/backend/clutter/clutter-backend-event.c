@@ -26,7 +26,7 @@ gpa_backend_clutter_event_configure_notify(GrandPa *gpa, GPaClient *client)
 		DEBUG("Create Object for New Window %d\n", client->window);
 
 		/* A new window */
-		cbclient = gpa_backend_clutter_create_client(gpa, client->window);
+		cbclient = gpa_backend_clutter_create_client(gpa, client);
 		client->backend = (GPaClutterBackendClient *)cbclient;
 		clutter_actor_hide(cbclient->window);
 		clutter_container_add_actor(CLUTTER_CONTAINER(GPA_BACKEND_CLUTTER_SCREEN(client->screen->backend)->viewport), cbclient->window);
@@ -39,8 +39,19 @@ gpa_backend_clutter_event_configure_notify(GrandPa *gpa, GPaClient *client)
 
 		clutter_actor_set_size(cbclient->window, client->width, client->height);
 		clutter_actor_set_position(cbclient->window, client->x, client->y);
+
+		/* Create overlay actor for dialog window */
+		if ((client->trans != None || client->override_redirect) && client->type == WTypeDialog && !cbclient->overlay) {
+			/* Creaye a overlay actor to be background */
+			cbclient->overlay = gpa_backend_clutter_create_overlay(1, 1);
+		}
 	}
 
+	if (cbclient->overlay) {
+		clutter_actor_hide(cbclient->overlay);
+		clutter_container_add_actor(CLUTTER_CONTAINER(GPA_BACKEND_CLUTTER_SCREEN(client->screen->backend)->viewport), cbclient->overlay);
+		clutter_actor_lower(cbclient->overlay, cbclient->window);
+	}
 }
 
 static void
@@ -70,6 +81,7 @@ gpa_backend_clutter_event_destroy_notify(GrandPa *gpa, GPaClient *client)
 static void
 gpa_backend_clutter_event_unmap_notify(GrandPa *gpa, GPaClient *client)
 {
+	ClutterColor color = { 0x00, 0x00, 0x00, 0xff};
 	GPaClutterBackendClient *cbclient;
 
 	if (!client)
@@ -100,6 +112,8 @@ gpa_backend_clutter_event_unmap_notify(GrandPa *gpa, GPaClient *client)
 				"scale-y", 0.0,
 				"signal-after::completed", gpa_backend_clutter_unmap_completed, cbclient,
 				NULL);
+			/* TODO: For good looks, overlay may be hided after dialog window animation */
+			clutter_actor_hide(cbclient->overlay);
 		} else {
 			clutter_actor_animate(cbclient->window, CLUTTER_EASE_OUT_CUBIC, 420,
 				"opacity", 0x00,
@@ -132,14 +146,21 @@ gpa_backend_clutter_event_map_notify(GrandPa *gpa, GPaClient *client)
 	 */
 	cbclient = (GPaClutterBackendClient *)client->backend;
 	if (!cbclient) {
-		cbclient = gpa_backend_clutter_create_client(gpa, client->window);
+		cbclient = gpa_backend_clutter_create_client(gpa, client);
 		if (!cbclient)
 			return;
 
 		DEBUG("Create object Now\n");
 		client->backend = cbclient;
+
 		clutter_actor_hide(cbclient->window);
 		clutter_container_add_actor(CLUTTER_CONTAINER(GPA_BACKEND_CLUTTER_SCREEN(client->screen->backend)->viewport), cbclient->window);
+
+		if (cbclient->overlay) {
+			clutter_actor_hide(cbclient->overlay);
+			clutter_container_add_actor(CLUTTER_CONTAINER(GPA_BACKEND_CLUTTER_SCREEN(client->screen->backend)->viewport), cbclient->overlay);
+			clutter_actor_lower(cbclient->overlay, cbclient->window);
+		}
 	}
 
 	if (!cbclient->window)
@@ -153,6 +174,7 @@ gpa_backend_clutter_event_map_notify(GrandPa *gpa, GPaClient *client)
 //	if (clutter_actor_get_parent(cbclient->window) == NULL) {
 	DEBUG("Start to update window content automatically\n");
 
+	clutter_x11_texture_pixmap_set_window((ClutterX11TexturePixmap *)cbclient->window, client->window, TRUE);
 	clutter_x11_texture_pixmap_set_automatic((ClutterX11TexturePixmap *)cbclient->window, TRUE);
 //	}
 
@@ -168,6 +190,11 @@ gpa_backend_clutter_event_map_notify(GrandPa *gpa, GPaClient *client)
 	 */
 	if (client->trans != None || client->override_redirect) {
 		if (client->type == WTypeDialog) {
+			/* Dialog window has overlay actor to cover current viewport */
+			clutter_actor_set_position(cbclient->overlay, 0.0, 0.0);
+			clutter_actor_set_size(cbclient->overlay, client->screen->width, client->screen->height);
+			clutter_actor_show(cbclient->overlay);
+
 			clutter_actor_set_scale_with_gravity(cbclient->window, 0.1, 0.1, CLUTTER_GRAVITY_CENTER);
 			clutter_actor_animate(cbclient->window, CLUTTER_EASE_OUT_ELASTIC, 840,
 				"scale-x", 1.0,

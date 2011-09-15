@@ -32,6 +32,7 @@ typedef struct {
 
 typedef struct {
 	ClutterActor *window;
+	ClutterActor *overlay;
 	GPaClientIState state;
 } GPaClutterBackendClient;
 
@@ -39,7 +40,8 @@ typedef struct {
 	GPollFD event_poll_fd;
 } GPaClutterBackend;
 
-GPaClutterBackendClient *gpa_backend_clutter_create_client(GrandPa *gpa, Window w);
+GPaClutterBackendClient *gpa_backend_clutter_create_client(GrandPa *gpa, GPaClient *client);
+ClutterActor            *gpa_backend_clutter_create_overlay(gfloat width, gfloat height);
 void                     gpa_backend_clutter_event_init(GPaBackend *this);
 
 /* Animation Callback */
