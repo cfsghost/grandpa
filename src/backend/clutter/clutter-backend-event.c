@@ -27,6 +27,9 @@ gpa_backend_clutter_event_configure_notify(GrandPa *gpa, GPaClient *client)
 
 		/* A new window */
 		cbclient = gpa_backend_clutter_create_client(gpa, client);
+		if (!cbclient)
+			return;
+
 		client->backend = (GPaClutterBackendClient *)cbclient;
 		clutter_actor_hide(cbclient->window);
 		clutter_container_add_actor(CLUTTER_CONTAINER(GPA_BACKEND_CLUTTER_SCREEN(client->screen->backend)->viewport), cbclient->window);
