@@ -406,8 +406,8 @@ gpa_eventdisp_map_request(GrandPa *gpa, XEvent *ev)
 			client->y = (int)((client->screen->height - client->height) * 0.5);
 		} else if (client->type == WTypeNormal || client->type == WTypeNone) { 
 			/* General window to be maximum */
-			client->x = 0;
-			client->y = 0;
+			client->x = client->screen->avail_x;
+			client->y = client->screen->avail_y;
 			client->width = client->screen->avail_width;
 			client->height = client->screen->avail_height;
 		} else if (client->override_redirect || client->trans != None) {

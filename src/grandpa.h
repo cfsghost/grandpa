@@ -45,7 +45,9 @@ typedef struct _GPaScreen {
 	gint width;
 	gint height;
 
-	/* Available size */
+	/* Available area */
+	gint avail_x;
+	gint avail_y;
 	gint avail_width;
 	gint avail_height;
 
