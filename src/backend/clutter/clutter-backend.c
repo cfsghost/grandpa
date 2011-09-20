@@ -238,5 +238,8 @@ GPaBackendClass clutter_backend_class = {
 	init: gpa_backend_clutter_init,
 	screen_init: gpa_backend_clutter_screen_init,
 	event_init: gpa_backend_clutter_event_init,
-	main: gpa_backend_clutter_main
+	main: gpa_backend_clutter_main,
+
+	/* Panel */
+//	panel_init: gpa_backend_clutter_panel_init
 };

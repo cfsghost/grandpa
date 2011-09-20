@@ -26,6 +26,9 @@ typedef struct _GPaBackendClass {
 	void (*event_init)(struct _GPaBackend *this);
 	void (*event_create_notify)(struct _GPaBackend *this, XEvent *ev);
 	void (*main)(struct _GPaBackend *this);
+
+	/* Panel */
+	void (*panel_init)(struct _GPaBackend *this);
 } GPaBackendClass;
 
 typedef struct _GPaBackendManager {
