@@ -23,10 +23,15 @@ typedef struct {
 	Window stage_window;
 	ClutterActor *stage;
 	ClutterActor *viewport;
-	struct _panel {
+	struct _FunctionLayer {
 		ClutterActor *container;
 		ClutterActor *background;
 		ClutterActor *shadow;
+	} funclayer;
+
+	struct _Panel {
+		ClutterActor *container;
+		ClutterActor *background;
 	} panel;
 } GPaClutterBackendScreen;
 
@@ -45,8 +50,8 @@ ClutterActor            *gpa_backend_clutter_create_overlay(gfloat width, gfloat
 void                     gpa_backend_clutter_event_init(GPaBackend *this);
 
 /* Animation Callback */
-void gpa_backend_clutter_enable_panel_completed(ClutterAnimation *animation, gpointer user_data);
-void gpa_backend_clutter_disable_panel_completed(ClutterAnimation *animation, gpointer user_data);
+void gpa_backend_clutter_enable_funclayer_completed(ClutterAnimation *animation, gpointer user_data);
+void gpa_backend_clutter_disable_funclayer_completed(ClutterAnimation *animation, gpointer user_data);
 void gpa_backend_clutter_unmap_completed(ClutterAnimation *animation, gpointer user_data);
 void gpa_backend_clutter_window_destroy_completed(ClutterAnimation *animation, gpointer user_data);
 void gpa_backend_clutter_event_handle(GPaBackend *this, XEvent *ev, GPaClient *client);

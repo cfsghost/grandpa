@@ -44,25 +44,25 @@ gpa_backend_clutter_unmap_completed(ClutterAnimation *animation, gpointer user_d
 }
 
 void
-gpa_backend_clutter_disable_panel_completed(ClutterAnimation *animation, gpointer user_data)
+gpa_backend_clutter_disable_funclayer_completed(ClutterAnimation *animation, gpointer user_data)
 {
 	GPaClient *client = (GPaClient *)user_data;
 	GPaClutterBackendScreen *cbscreen = (GPaClutterBackendScreen *)user_data;
 
 	/* Hide Panel */
-	clutter_actor_hide(cbscreen->panel.container);
+	clutter_actor_hide(cbscreen->funclayer.container);
 
 	DEBUG("Hide Panel\n");
 }
 
 void
-gpa_backend_clutter_enable_panel_completed(ClutterAnimation *animation, gpointer user_data)
+gpa_backend_clutter_enable_funclayer_completed(ClutterAnimation *animation, gpointer user_data)
 {
 	GPaClient *client = (GPaClient *)user_data;
 	GPaClutterBackendScreen *cbscreen = (GPaClutterBackendScreen *)user_data;
 
 	/* Hide Panel */
-	clutter_actor_show(cbscreen->panel.container);
+	clutter_actor_show(cbscreen->funclayer.container);
 
 	DEBUG("Show Panel\n");
 }

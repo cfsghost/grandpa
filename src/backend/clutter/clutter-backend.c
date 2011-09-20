@@ -99,10 +99,10 @@ gpa_backend_clutter_call(GPaBackend *this, GPaFuncCall func, gpointer userdata)
 			cbscreen = (GPaClutterBackendScreen *)screen->backend;
 
 			/* Show Panel */
-			clutter_actor_show_all(cbscreen->panel.container);
+			clutter_actor_show_all(cbscreen->funclayer.container);
 			clutter_actor_animate(cbscreen->viewport, CLUTTER_EASE_OUT_CIRC, 600,
 				"y", (gfloat)-GRANDPA_CONTROLBAR_HEIGHT,
-				"signal-after::completed", gpa_backend_clutter_enable_panel_completed, cbscreen,
+				"signal-after::completed", gpa_backend_clutter_enable_funclayer_completed, cbscreen,
 				NULL);
 		}
 
@@ -117,7 +117,7 @@ gpa_backend_clutter_call(GPaBackend *this, GPaFuncCall func, gpointer userdata)
 
 			clutter_actor_animate(cbscreen->viewport, CLUTTER_EASE_OUT_CIRC, 600,
 				"y", .0,
-				"signal-after::completed", gpa_backend_clutter_disable_panel_completed, cbscreen,
+				"signal-after::completed", gpa_backend_clutter_disable_funclayer_completed, cbscreen,
 				NULL);
 		}
 
@@ -187,10 +187,10 @@ gpa_backend_clutter_screen_init(GPaBackend *this, GPaScreen *screen)
 	DEBUG("Stage window id: %ld\n", cbscreen->stage_window);
 
 	/* Create a Panel */
-	cbscreen->panel.container = clutter_group_new();
-	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->stage), cbscreen->panel.container);
-	cbscreen->panel.background = clutter_texture_new_from_file("panel_background.png", NULL);
-	cbscreen->panel.shadow = clutter_texture_new_from_file("shadow.png", NULL);
+	cbscreen->funclayer.container = clutter_group_new();
+	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->stage), cbscreen->funclayer.container);
+	cbscreen->funclayer.background = clutter_texture_new_from_file("panel_background.png", NULL);
+	cbscreen->funclayer.shadow = clutter_texture_new_from_file("shadow.png", NULL);
 
 	/* Setting X Window */
 	XReparentWindow(gpa->display, cbscreen->stage_window, screen->overlay, 0, 0);
@@ -203,15 +203,15 @@ gpa_backend_clutter_screen_init(GPaBackend *this, GPaScreen *screen)
 	clutter_actor_set_size(cbscreen->stage, (gfloat)screen->width, (gfloat)screen->height);
 	clutter_actor_set_size(cbscreen->viewport, (gfloat)screen->width, (gfloat)screen->height);
 
-	/* Configure panel */
-	clutter_texture_set_repeat(CLUTTER_TEXTURE(cbscreen->panel.background), TRUE, TRUE);
-	clutter_actor_set_position(cbscreen->panel.container, 0, clutter_actor_get_height(cbscreen->stage) - GRANDPA_CONTROLBAR_HEIGHT);
-	clutter_actor_set_size(cbscreen->panel.background, clutter_actor_get_width(cbscreen->stage), GRANDPA_CONTROLBAR_HEIGHT);
-	clutter_actor_set_width(cbscreen->panel.shadow, clutter_actor_get_width(cbscreen->stage));
-	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->panel.container), cbscreen->panel.background);
-	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->panel.container), cbscreen->panel.shadow);
-	clutter_actor_lower(cbscreen->panel.container, cbscreen->viewport);
-	clutter_actor_hide(cbscreen->panel.container);
+	/* Configure Function Layer */
+	clutter_texture_set_repeat(CLUTTER_TEXTURE(cbscreen->funclayer.background), TRUE, TRUE);
+	clutter_actor_set_position(cbscreen->funclayer.container, 0, clutter_actor_get_height(cbscreen->stage) - GRANDPA_CONTROLBAR_HEIGHT);
+	clutter_actor_set_size(cbscreen->funclayer.background, clutter_actor_get_width(cbscreen->stage), GRANDPA_CONTROLBAR_HEIGHT);
+	clutter_actor_set_width(cbscreen->funclayer.shadow, clutter_actor_get_width(cbscreen->stage));
+	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->funclayer.container), cbscreen->funclayer.background);
+	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->funclayer.container), cbscreen->funclayer.shadow);
+	clutter_actor_lower(cbscreen->funclayer.container, cbscreen->viewport);
+	clutter_actor_hide(cbscreen->funclayer.container);
 
 	/* Allow input pass through */
 	gpa_backend_clutter_input_init(this, screen->overlay);
@@ -241,5 +241,5 @@ GPaBackendClass clutter_backend_class = {
 	main: gpa_backend_clutter_main,
 
 	/* Panel */
-//	panel_init: gpa_backend_clutter_panel_init
+	panel_init: gpa_backend_clutter_panel_init
 };

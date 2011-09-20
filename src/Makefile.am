@@ -28,6 +28,7 @@ grandpa_SOURCES = \
 	backend/clutter/clutter-backend.c \
 	backend/clutter/clutter-backend-event.c \
 	backend/clutter/clutter-backend-callback.c \
+	backend/clutter/clutter-backend-panel.c \
 	backend/clutter/clutter-backend.h \
 	panel/panel-backend.c \
 	panel/panel-core.c \

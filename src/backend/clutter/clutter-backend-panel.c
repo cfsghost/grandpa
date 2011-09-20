@@ -11,4 +11,11 @@
 void
 gpa_backend_clutter_panel_init(GPaBackend *this)
 {
+	ClutterActor *panel;
+	ClutterActor *background;
+	ClutterColor color = { 0x00, 0x00, 0x00, 0xaa};
+
+	panel = clutter_group_new(); 
+	background = clutter_rectangle_new_with_color(&color);
+	clutter_container_add_actor(CLUTTER_CONTAINER(panel), background);
 }
