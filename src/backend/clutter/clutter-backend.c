@@ -178,7 +178,7 @@ gpa_backend_clutter_screen_init(GPaBackend *this, GPaScreen *screen)
 	/* Allocate */
 	cbscreen = (GPaClutterBackendScreen *)g_new0(GPaClutterBackendScreen, 1);
 	screen->backend = cbscreen;
-#if 1
+
 	/* Initializing stage */
 	cbscreen->stage = clutter_stage_get_default();
 	cbscreen->stage_window = clutter_x11_get_stage_window(CLUTTER_STAGE(cbscreen->stage));
@@ -199,25 +199,6 @@ gpa_backend_clutter_screen_init(GPaBackend *this, GPaScreen *screen)
 		ExposureMask | StructureNotifyMask);
 	XSync(gpa->display, FALSE);
 
-#if 0
-	{
-		XWindowChanges xwc;
-		xwc.x = 0;
-		xwc.y = 0;
-		xwc.width = screen->width;
-		xwc.height = screen->height;
-
-		XConfigureWindow(gpa->display, cbscreen->stage_window, CWX | CWY | CWWidth | CWHeight, &xwc);
-		XMapWindow(gpa->display, cbscreen->stage_window);
-	}
-
-	{
-		XSetWindowAttributes attr;
-		attr.win_gravity = StaticGravity;
-		XChangeWindowAttributes(gpa->display, cbscreen->stage_window, CWWinGravity, &attr);
-	}
-#endif
-
 	clutter_stage_set_color(CLUTTER_STAGE(cbscreen->stage), &color);
 	clutter_actor_set_size(cbscreen->stage, (gfloat)screen->width, (gfloat)screen->height);
 	clutter_actor_set_size(cbscreen->viewport, (gfloat)screen->width, (gfloat)screen->height);
@@ -230,7 +211,7 @@ gpa_backend_clutter_screen_init(GPaBackend *this, GPaScreen *screen)
 	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->panel.container), cbscreen->panel.background);
 	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->panel.container), cbscreen->panel.shadow);
 	clutter_actor_lower(cbscreen->panel.container, cbscreen->viewport);
-//	clutter_actor_hide(cbscreen->panel.container);
+	clutter_actor_hide(cbscreen->panel.container);
 
 	/* Allow input pass through */
 	gpa_backend_clutter_input_init(this, screen->overlay);
@@ -238,7 +219,6 @@ gpa_backend_clutter_screen_init(GPaBackend *this, GPaScreen *screen)
 
 	clutter_actor_realize(cbscreen->stage);
 	clutter_actor_show(cbscreen->stage);
-#endif
 }
 
 void
