@@ -35,6 +35,8 @@ gpa_panel_update_loop(gpointer data)
 
 	gpa_panel_update_clock(panel);
 
+	/* TODO: Update battery information */
+
 	return TRUE;
 }
 
