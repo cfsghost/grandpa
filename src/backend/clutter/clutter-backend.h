@@ -32,6 +32,7 @@ typedef struct {
 	struct _Panel {
 		ClutterActor *container;
 		ClutterActor *background;
+		ClutterActor *clock;
 	} panel;
 } GPaClutterBackendScreen;
 
@@ -57,6 +58,8 @@ void gpa_backend_clutter_window_destroy_completed(ClutterAnimation *animation, g
 void gpa_backend_clutter_event_handle(GPaBackend *this, XEvent *ev, GPaClient *client);
 
 /* Panel */
-void gpa_backend_clutter_panel_init(GPaBackend *this);
+void gpa_backend_clutter_panel_init(GPaBackend *this, GPaScreen *screen);
+void gpa_backend_clutter_panel_resize(GPaBackend *this, GPaScreen *screen, gfloat width, gfloat height);
+void gpa_backend_clutter_panel_update_clock(GPaBackend *this, GPaScreen *screen, const gchar *clock);
 
 #endif

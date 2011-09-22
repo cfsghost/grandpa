@@ -214,6 +214,9 @@ gpa_screenmgr_screen_configure(GrandPa *gpa, GPaScreen *screen)
 	/* Initializing window */
 	gpa_backend_screen_init(gpa, screen);
 	gpa_ewmh_screen_init(gpa, screen);
+
+	/* Initializing Panel */
+	gpa_panel_init(gpa, screen);
 }
 
 GPaScreen *

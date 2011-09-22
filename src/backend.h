@@ -28,7 +28,9 @@ typedef struct _GPaBackendClass {
 	void (*main)(struct _GPaBackend *this);
 
 	/* Panel */
-	void (*panel_init)(struct _GPaBackend *this);
+	void (*panel_init)(struct _GPaBackend *this, GPaScreen *screen);
+	void (*panel_resize)(struct _GPaBackend *this, GPaScreen *screen, gfloat width, gfloat height);
+	void (*panel_update_clock)(struct _GPaBackend *this, GPaScreen *screen, const gchar *clock);
 } GPaBackendClass;
 
 typedef struct _GPaBackendManager {

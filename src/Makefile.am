@@ -30,7 +30,6 @@ grandpa_SOURCES = \
 	backend/clutter/clutter-backend-callback.c \
 	backend/clutter/clutter-backend-panel.c \
 	backend/clutter/clutter-backend.h \
-	panel/panel-backend.c \
 	panel/panel-core.c \
 	screenmgr.c \
 	screenmgr.h \
