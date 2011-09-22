@@ -28,6 +28,17 @@ gpa_panel_update_clock(GPaPanel *panel)
 	g_free(panel->date_strings);
 }
 
+void
+gpa_panel_update_battery(GPaPanel *panel)
+{
+	GrandPa *gpa = panel->gpa;
+
+	/* TODO: Get battery status */
+
+	/* Update clock */
+	gpa->backend->engine->panel_update_battery(gpa->backend->data, panel->screen, TRUE, 100);
+}
+
 gboolean
 gpa_panel_update_loop(gpointer data)
 {
@@ -51,17 +62,22 @@ gpa_panel_init(GrandPa *gpa, GPaScreen *screen)
 	panel->gpa = gpa;
 	panel->screen = screen;
 	panel->width = screen->width;
-	panel->height = 18;
+	panel->height = 20;
 	panel->datetime = g_date_time_new_now_local();
 
 	gpa->backend->engine->panel_init(gpa->backend->data, screen);
-	gpa->backend->engine->panel_resize(gpa->backend->data, screen, panel->width, panel->height);
 
 	/* Update available space of screen */
 	screen->avail_y += panel->height;
 	screen->avail_height -= panel->height;
 
-	/* Update clock on panel */
+	/* Update components */
 	gpa_panel_update_clock(panel);
+	gpa_panel_update_battery(panel);
+
+	/* Using components size to resize panel */
+	gpa->backend->engine->panel_resize(gpa->backend->data, screen, panel->width, panel->height);
+
+	/* Loop to update status */
 	g_timeout_add_full(G_PRIORITY_LOW, 1000, gpa_panel_update_loop, panel, NULL);
 }

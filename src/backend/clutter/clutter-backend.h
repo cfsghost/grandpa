@@ -33,6 +33,7 @@ typedef struct {
 		ClutterActor *container;
 		ClutterActor *background;
 		ClutterActor *clock;
+		ClutterActor *battery;
 	} panel;
 } GPaClutterBackendScreen;
 
@@ -61,5 +62,6 @@ void gpa_backend_clutter_event_handle(GPaBackend *this, XEvent *ev, GPaClient *c
 void gpa_backend_clutter_panel_init(GPaBackend *this, GPaScreen *screen);
 void gpa_backend_clutter_panel_resize(GPaBackend *this, GPaScreen *screen, gfloat width, gfloat height);
 void gpa_backend_clutter_panel_update_clock(GPaBackend *this, GPaScreen *screen, const gchar *clock);
+void gpa_backend_clutter_panel_update_battery(struct _GPaBackend *this, GPaScreen *screen, gboolean charging, int percent);
 
 #endif

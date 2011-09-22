@@ -243,5 +243,6 @@ GPaBackendClass clutter_backend_class = {
 	/* Panel */
 	panel_init: gpa_backend_clutter_panel_init,
 	panel_resize: gpa_backend_clutter_panel_resize,
-	panel_update_clock: gpa_backend_clutter_panel_update_clock
+	panel_update_clock: gpa_backend_clutter_panel_update_clock,
+	panel_update_battery: gpa_backend_clutter_panel_update_battery
 };

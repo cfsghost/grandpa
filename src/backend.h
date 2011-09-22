@@ -31,6 +31,7 @@ typedef struct _GPaBackendClass {
 	void (*panel_init)(struct _GPaBackend *this, GPaScreen *screen);
 	void (*panel_resize)(struct _GPaBackend *this, GPaScreen *screen, gfloat width, gfloat height);
 	void (*panel_update_clock)(struct _GPaBackend *this, GPaScreen *screen, const gchar *clock);
+	void (*panel_update_battery)(struct _GPaBackend *this, GPaScreen *screen, gboolean charging, int percent);
 } GPaBackendClass;
 
 typedef struct _GPaBackendManager {
