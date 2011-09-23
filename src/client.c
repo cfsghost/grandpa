@@ -97,7 +97,7 @@ gpa_client_property_update(GrandPa *gpa, GPaClient *client)
 {
 	XWindowAttributes attr;
 
-	XGrabServer(gpa->display);
+//	XGrabServer(gpa->display);
 
 	client->type = gpa_ewmh_get_window_type(gpa, client->window);
 
@@ -120,7 +120,7 @@ gpa_client_property_update(GrandPa *gpa, GPaClient *client)
 	/* get WM_TRANSIENT_FOR */
 	XGetTransientForHint(gpa->display, client->window, &client->trans);
 
-	XUngrabServer(gpa->display);
+//	XUngrabServer(gpa->display);
 }
 
 void

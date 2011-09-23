@@ -210,6 +210,10 @@ gpa_backend_clutter_event_map_notify(GrandPa *gpa, GPaClient *client)
 				NULL);
 		}
 	} else {
+		if (client->type == WTypeDesktop) {
+//			clutter_actor_lower_bottom(cbclient->window);
+		}
+
 		clutter_actor_set_scale_with_gravity(cbclient->window, 0.1, 0.1, CLUTTER_GRAVITY_CENTER);
 //		clutter_actor_animate(cbclient->window, CLUTTER_EASE_OUT_CUBIC, 600,
 		clutter_actor_animate(cbclient->window, CLUTTER_EASE_OUT_CIRC, 600,

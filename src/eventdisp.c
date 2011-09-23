@@ -412,12 +412,19 @@ gpa_eventdisp_map_request(GrandPa *gpa, XEvent *ev)
 			client->height = client->screen->avail_height;
 		} else if (client->override_redirect || client->trans != None) {
 			/* Keep original position and size */
+		} else if (client->type == WTypeDesktop) {
+			/* Same with screen size */
+			client->x = 0;
+			client->y = 0;
+			client->width = client->screen->width;
+			client->height = client->screen->height;
 		} else {
 			client->width = client->screen->width;
 			client->height = client->screen->height;
 		}
 
 		/* Move and resize window */
+		DEBUG("Mapping Window on %dx%d, size: %dx%d\n", client->x, client->y, client->width, client->height);
 		XMoveResizeWindow(gpa->display, client->window,
 			client->x, client->y,
 			client->width, client->height);
@@ -536,6 +543,15 @@ gpa_eventdisp_property_notify(GrandPa *gpa, XEvent *ev)
 
 	DEBUG("PropertyNotify window id: %ld\n", pe->window);
 
+#ifdef _DEBUG
+	static char buf[48];
+	char *atom_name = XGetAtomName(gpa->display, pe->atom);
+	strncpy(buf, atom_name, sizeof(buf));
+	buf[sizeof(buf)-1] = 0;
+	XFree(atom_name);
+	DEBUG("ATOM: %s\n", buf);
+#endif
+
 	client = gpa_client_find_with_window(gpa, pe->window);
 	if (!client)
 		return FALSE;
@@ -579,6 +595,16 @@ gpa_eventdisp_client_message(GrandPa *gpa, XEvent *ev)
 		return FALSE;
 
 	if (cme->format == 32) {
+
+#ifdef _DEBUG
+		static char buf[48];
+		char *atom_name = XGetAtomName(gpa->display, cme->message_type);
+		strncpy(buf, atom_name, sizeof(buf));
+		buf[sizeof(buf)-1] = 0;
+		XFree(atom_name);
+		DEBUG("ATOM: %s\n", buf);
+#endif
+
 		if (cme->message_type == gpa->wm_change_state) {
 			DEBUG("ClientMessage WM_CHANGE_STATE\n");
 
