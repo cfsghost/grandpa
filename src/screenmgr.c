@@ -8,6 +8,7 @@
 
 #include "grandpa.h"
 #include "screenmgr.h"
+#include "keydef.h"
 
 GPaScreen *
 gpa_screenmgr_get_screen_with_window(GrandPa *gpa, Window w)
@@ -88,9 +89,15 @@ gpa_screenmgr_screen_grabkey_init(GrandPa *gpa, GPaScreen *screen)
 	/* Release any previous grabs */
 	XUngrabKey(gpa->display, AnyKey, AnyModifier, screen->root);
 
-	/* Grab Keyboard */
+	/* Grab Keyboard to get button event */
+
+	/* Home Button */
 	keycode = XKeysymToKeycode(gpa->display, XStringToKeysym("Super_L"));
 	XGrabKey(gpa->display, keycode, AnyModifier, screen->root,
+		False, GrabModeAsync, GrabModeAsync);
+
+	/* Power Button */
+	XGrabKey(gpa->display, GP_KEY_SLEEP, AnyModifier, screen->root,
 		False, GrabModeAsync, GrabModeAsync);
 }
 
@@ -217,6 +224,9 @@ gpa_screenmgr_screen_configure(GrandPa *gpa, GPaScreen *screen)
 
 	/* Initializing Panel */
 	gpa_panel_init(gpa, screen);
+
+	/* Initializing Screen Lock */
+	gpa_screenlock_init(gpa, screen);
 }
 
 GPaScreen *

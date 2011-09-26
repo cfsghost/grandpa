@@ -35,6 +35,11 @@ typedef struct {
 		ClutterActor *clock;
 		ClutterActor *battery;
 	} panel;
+
+	struct _ScreenLock {
+		ClutterActor *container;
+		ClutterActor *background;
+	} screenlock;
 } GPaClutterBackendScreen;
 
 typedef struct {
@@ -63,5 +68,10 @@ void gpa_backend_clutter_panel_init(GPaBackend *this, GPaScreen *screen);
 void gpa_backend_clutter_panel_resize(GPaBackend *this, GPaScreen *screen, gfloat width, gfloat height);
 void gpa_backend_clutter_panel_update_clock(GPaBackend *this, GPaScreen *screen, const gchar *clock);
 void gpa_backend_clutter_panel_update_battery(struct _GPaBackend *this, GPaScreen *screen, gboolean charging, int percent);
+
+/* Screen Lock */
+void gpa_backend_clutter_screenlock_init(GPaBackend *this, GPaScreen *screen);
+void gpa_backend_clutter_screenlock_enter(GPaBackend *this, GPaScreen *screen);
+void gpa_backend_clutter_screenlock_leave(GPaBackend *this, GPaScreen *screen);
 
 #endif

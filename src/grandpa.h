@@ -29,8 +29,14 @@ typedef enum {
 typedef enum {
 	GPA_MODE_INITIALIZING,
 	GPA_MODE_NORMAL,
-	GPA_MODE_CONTROLBAR
+	GPA_MODE_CONTROLBAR,
+	GPA_MODE_SCREENLOCK
 } GPaMode;
+
+typedef struct _GPaScreenLock {
+	struct _GrandPa *gpa;
+	struct _GPaScreen *screen;
+} GPaScreenLock;
 
 typedef struct _GPaClient GPaClient;
 typedef struct _GPaScreen {
@@ -63,6 +69,9 @@ typedef struct _GPaScreen {
 	gint client_count;
 
 	GList *destroyed_clients;
+
+	/* Screen Lock */
+	GPaScreenLock *screenlock;
 } GPaScreen;
 
 typedef struct {
@@ -71,7 +80,7 @@ typedef struct {
 } GPaScreenManager;
 
 struct _GPaBackendManager;
-typedef struct {
+typedef struct _GrandPa {
 	Display *display;
 	struct _GPaBackendManager *backend;
 	GPaScreenManager *screen;

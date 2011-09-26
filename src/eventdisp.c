@@ -5,6 +5,7 @@
 
 #include "grandpa.h"
 #include "screenmgr.h"
+#include "screenlock.h"
 #include "error.h"
 #include "client.h"
 #include "eventdisp.h"
@@ -806,7 +807,13 @@ gpa_eventdisp_keyrelease(GrandPa *gpa, XEvent *ev)
 	/* Function button */
 	switch(xke->keycode) {
 	case GP_KEY_SLEEP:
-		DEBUG("SLEEP\n");
+		if (gpa->mode != GPA_MODE_SCREENLOCK) {
+			DEBUG("SLEEP\n");
+			gpa_screenlock_enter(gpa);
+		} else {
+			DEBUG("WAKE\n");
+			gpa_screenlock_leave(gpa);
+		}
 		return TRUE;
 	}
 
