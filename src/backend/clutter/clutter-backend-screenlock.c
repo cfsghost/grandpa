@@ -25,6 +25,9 @@ gpa_backend_clutter_screenlock_init(GPaBackend *this, GPaScreen *screen)
 	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->screenlock.container), cbscreen->screenlock.background);
 	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->stage), cbscreen->screenlock.container);
 
+	/* Like iOS, screen lock is lower than panel */
+	clutter_actor_lower(cbscreen->screenlock.container, cbscreen->panel.container);
+
 	/* Panel */
 	cbscreen->screenlock.panel = clutter_group_new(); 
 	cbscreen->screenlock.panel_background = clutter_rectangle_new_with_color(&panel_color);	
