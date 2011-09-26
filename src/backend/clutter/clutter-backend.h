@@ -39,6 +39,15 @@ typedef struct {
 	struct _ScreenLock {
 		ClutterActor *container;
 		ClutterActor *background;
+
+		ClutterActor *panel;
+		ClutterActor *panel_background;
+		ClutterActor *panel_light;
+		ClutterActor *clock;
+
+		ClutterActor *slider_panel;
+		ClutterActor *slider_panel_background;
+		ClutterActor *slider_panel_light;
 	} screenlock;
 } GPaClutterBackendScreen;
 
