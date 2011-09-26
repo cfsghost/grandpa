@@ -13,6 +13,7 @@ INCLUDES = \
 AUTOMAKE_OPTIONS = subdir-objects
 
 grandpa_SOURCES = \
+	keydef.h \
 	error.c \
 	error.h \
 	cursor.c \

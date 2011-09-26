@@ -9,6 +9,7 @@
 #include "client.h"
 #include "eventdisp.h"
 #include "backend.h"
+#include "keydef.h"
 
 extern GrandPa *gpa;
 
@@ -411,7 +412,16 @@ gpa_eventdisp_map_request(GrandPa *gpa, XEvent *ev)
 			client->width = client->screen->avail_width;
 			client->height = client->screen->avail_height;
 		} else if (client->override_redirect || client->trans != None) {
-			/* Keep original position and size */
+			/* Try to keep original position and size, unless it out off range */
+			if (client->x < client->screen->avail_x) {
+				client->width -= client->screen->avail_x - client->x;
+				client->x = client->screen->avail_x;
+			}
+
+			if (client->y < client->screen->avail_y) {
+				client->height -= client->screen->avail_y - client->y;
+				client->y = client->screen->avail_y;
+			}
 		} else if (client->type == WTypeDesktop) {
 			/* Same with screen size */
 			client->x = 0;
@@ -793,6 +803,14 @@ gpa_eventdisp_keyrelease(GrandPa *gpa, XEvent *ev)
 	XKeyEvent *xke = &ev->xkey;
 	KeySym key;
 
+	/* Function button */
+	switch(xke->keycode) {
+	case GP_KEY_SLEEP:
+		DEBUG("SLEEP\n");
+		return TRUE;
+	}
+
+	/* Keyboard event */
 	key = XKeycodeToKeysym(gpa->display, xke->keycode, 0);
 	switch(key) {
 	case XK_F2:
