@@ -32,6 +32,7 @@ grandpa_SOURCES = \
 	backend/clutter/clutter-backend-panel.c \
 	backend/clutter/clutter-backend-screenlock.c \
 	backend/clutter/clutter-backend.h \
+	clock/clock.c \
 	panel/panel-core.c \
 	screenlock/screenlock-core.c \
 	screenmgr.c \

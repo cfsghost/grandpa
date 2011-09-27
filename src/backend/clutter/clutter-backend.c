@@ -249,5 +249,6 @@ GPaBackendClass clutter_backend_class = {
 	/* Screen Lock */
 	screenlock_init: gpa_backend_clutter_screenlock_init,
 	screenlock_enter: gpa_backend_clutter_screenlock_enter,
-	screenlock_leave: gpa_backend_clutter_screenlock_leave
+	screenlock_leave: gpa_backend_clutter_screenlock_leave,
+	screenlock_update_label: gpa_backend_clutter_screenlock_update_label
 };

@@ -27,6 +27,9 @@ int main(int argc, char *argv[])
 	DEBUG("Starting GrandPa Window Manager\n");
 	gpa = (GrandPa *)g_new0(GrandPa, 1);
 
+	/* Create a clock for all components need */
+	gpa_clock_init(gpa);
+
 	/* Trap all X error event */
 	gpa_error_trap_xerrors();
 

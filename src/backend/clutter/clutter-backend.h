@@ -43,7 +43,8 @@ typedef struct {
 		ClutterActor *panel;
 		ClutterActor *panel_background;
 		ClutterActor *panel_light;
-		ClutterActor *clock;
+		ClutterActor *panel_label;
+		ClutterActor *panel_sublabel;
 
 		ClutterActor *slider_panel;
 		ClutterActor *slider_panel_background;
@@ -82,5 +83,6 @@ void gpa_backend_clutter_panel_update_battery(struct _GPaBackend *this, GPaScree
 void gpa_backend_clutter_screenlock_init(GPaBackend *this, GPaScreen *screen);
 void gpa_backend_clutter_screenlock_enter(GPaBackend *this, GPaScreen *screen);
 void gpa_backend_clutter_screenlock_leave(GPaBackend *this, GPaScreen *screen);
+void gpa_backend_clutter_screenlock_update_label(GPaBackend *this, GPaScreen *screen, const gchar *label, const gchar *sublabel);
 
 #endif

@@ -113,6 +113,10 @@ typedef struct _GrandPa {
 	/* XRandr extension */
 	gint xrandr_event_base;
 	gint xrandr_error_base;
+
+	/* Clock */
+	guint clock_source;
+	GDateTime *datetime;
 } GrandPa;
 
 #endif

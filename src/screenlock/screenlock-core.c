@@ -21,9 +21,22 @@ gpa_screenlock_init(GrandPa *gpa, GPaScreen *screen)
 }
 
 void
+gpa_screenlock_update(GrandPa *gpa, GPaScreen *screen)
+{
+	gchar *date_strings = NULL;
+
+	/* Get current date */
+	date_strings = g_date_time_format(gpa->datetime, "%I:%M");
+
+	/* Update clock */
+	gpa->backend->engine->screenlock_update_label(gpa->backend->data, screen, date_strings, NULL);
+
+	g_free(date_strings);
+}
+
+void
 gpa_screenlock_enter(GrandPa *gpa)
 {
-	GPaScreenLock *screenlock;
 	GList *node;
 	GPaScreen *screen;
 
@@ -32,10 +45,17 @@ gpa_screenlock_enter(GrandPa *gpa)
 
 	gpa->mode = GPA_MODE_SCREENLOCK;
 
+	/* Start clock updater */
+	gpa_clock_start(gpa);
+
 	/* Lock all screens */
 	for (node = gpa->screen->screens; node; node = g_list_next(node)) {
 		screen = (GPaScreen *)node->data;
 
+		/* Update Labels */
+		gpa_screenlock_update(gpa, screen);
+
+		/* Show screen lock */
 		gpa->backend->engine->screenlock_enter(gpa->backend->data, screen);
 	}
 }
@@ -43,7 +63,6 @@ gpa_screenlock_enter(GrandPa *gpa)
 void
 gpa_screenlock_leave(GrandPa *gpa)
 {
-	GPaScreenLock *screenlock;
 	GList *node;
 	GPaScreen *screen;
 
@@ -52,7 +71,7 @@ gpa_screenlock_leave(GrandPa *gpa)
 
 	gpa->mode = GPA_MODE_NORMAL;
 
-	/* Lock all screens */
+	/* Unlock all screens */
 	for (node = gpa->screen->screens; node; node = g_list_next(node)) {
 		screen = (GPaScreen *)node->data;
 

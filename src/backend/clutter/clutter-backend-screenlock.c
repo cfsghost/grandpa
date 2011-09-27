@@ -38,6 +38,7 @@ gpa_backend_clutter_screenlock_init(GPaBackend *this, GPaScreen *screen)
 	/* Light on panel */
 	cbscreen->screenlock.panel_light = clutter_cairo_texture_new(screen->width, screen->height * 0.0625);
 	cr = clutter_cairo_texture_create(CLUTTER_CAIRO_TEXTURE(cbscreen->screenlock.panel_light));
+	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->screenlock.panel), cbscreen->screenlock.panel_light);
 
 	/* Clear Cairo operator */
 	cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
@@ -54,8 +55,13 @@ gpa_backend_clutter_screenlock_init(GPaBackend *this, GPaScreen *screen)
 	cairo_pattern_destroy(pat);
 	cairo_destroy(cr);
 
-	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->screenlock.panel), cbscreen->screenlock.panel_light);
-
+	/* Label */
+	cbscreen->screenlock.panel_label = clutter_text_new();
+	clutter_text_set_color(CLUTTER_TEXT(cbscreen->screenlock.panel_label), &text_color);
+	clutter_text_set_font_name(CLUTTER_TEXT(cbscreen->screenlock.panel_label), "Sans 48");
+	clutter_actor_set_anchor_point_from_gravity(cbscreen->screenlock.panel_label, CLUTTER_GRAVITY_CENTER);
+	clutter_actor_set_position(cbscreen->screenlock.panel_label, screen->width * 0.5, screen->height * 0.0625);
+	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->screenlock.panel), cbscreen->screenlock.panel_label);
 
 	/* Slider Panel */
 	cbscreen->screenlock.slider_panel = clutter_group_new(); 
@@ -67,6 +73,7 @@ gpa_backend_clutter_screenlock_init(GPaBackend *this, GPaScreen *screen)
 	/* Light on panel */
 	cbscreen->screenlock.slider_panel_light = clutter_cairo_texture_new(screen->width, screen->height * 0.05);
 	cr = clutter_cairo_texture_create(CLUTTER_CAIRO_TEXTURE(cbscreen->screenlock.slider_panel_light));
+	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->screenlock.slider_panel), cbscreen->screenlock.slider_panel_light);
 
 	/* Clear Cairo operator */
 	cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
@@ -83,9 +90,15 @@ gpa_backend_clutter_screenlock_init(GPaBackend *this, GPaScreen *screen)
 	cairo_pattern_destroy(pat);
 	cairo_destroy(cr);
 
-	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->screenlock.slider_panel), cbscreen->screenlock.slider_panel_light);
-
 	clutter_actor_hide(cbscreen->screenlock.container);
+}
+
+void
+gpa_backend_clutter_screenlock_update_label(GPaBackend *this, GPaScreen *screen, const gchar *label, const gchar *sublabel)
+{
+	GPaClutterBackendScreen *cbscreen = (GPaClutterBackendScreen *)screen->backend;
+
+	clutter_text_set_text(CLUTTER_TEXT(cbscreen->screenlock.panel_label),label);
 }
 
 void

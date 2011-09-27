@@ -37,6 +37,7 @@ typedef struct _GPaBackendClass {
 	void (*screenlock_init)(struct _GPaBackend *this, GPaScreen *screen);
 	void (*screenlock_enter)(struct _GPaBackend *this, GPaScreen *screen);
 	void (*screenlock_leave)(struct _GPaBackend *this, GPaScreen *screen);
+	void (*screenlock_update_label)(struct _GPaBackend *this, GPaScreen *screen, const gchar *label, const gchar *sublabel);
 } GPaBackendClass;
 
 typedef struct _GPaBackendManager {
