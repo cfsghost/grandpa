@@ -48,7 +48,7 @@ gpa_backend_clutter_panel_init(GPaBackend *this, GPaScreen *screen)
 	/* Clock */
 	cbscreen->panel.clock = clutter_text_new();
 	clutter_text_set_color(CLUTTER_TEXT(cbscreen->panel.clock), &text_color);
-	clutter_text_set_font_name(CLUTTER_TEXT(cbscreen->panel.clock), "Sans 12");
+	clutter_text_set_font_name(CLUTTER_TEXT(cbscreen->panel.clock), "Sans 11");
 	clutter_actor_set_anchor_point_from_gravity(cbscreen->panel.clock, CLUTTER_GRAVITY_CENTER);
 	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->panel.container), cbscreen->panel.clock);
 

@@ -8,6 +8,36 @@
 #include "grandpa.h"
 #include "clutter-backend.h"
 
+static ClutterActor *
+gpa_backend_clutter_create_panel(gfloat width, gfloat height)
+{
+	ClutterActor *panel;
+	cairo_t *cr;
+
+	panel = clutter_cairo_texture_new(width, height);
+	cr = clutter_cairo_texture_create(CLUTTER_CAIRO_TEXTURE(panel));
+	
+	/* Clear Cairo operator */
+	cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
+	cairo_paint(cr);
+	cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+
+	cairo_rectangle(cr, 0, 0, width, height);
+	cairo_set_source_rgba(cr, .0, .0, .0, 0.8);
+	cairo_fill(cr);
+
+	cairo_move_to(cr, 0, height - 1.5);
+	cairo_line_to(cr, width, height - 1.5);
+	cairo_set_source_rgba(cr, 1.0, 1.0, 1.0, 0.2);
+
+	cairo_set_line_width(cr, 1.0);
+	cairo_stroke(cr);
+
+	cairo_destroy(cr);
+
+	return panel;
+}
+
 void
 gpa_backend_clutter_screenlock_init(GPaBackend *this, GPaScreen *screen)
 {
@@ -30,8 +60,9 @@ gpa_backend_clutter_screenlock_init(GPaBackend *this, GPaScreen *screen)
 
 	/* Panel */
 	cbscreen->screenlock.panel = clutter_group_new(); 
-	cbscreen->screenlock.panel_background = clutter_rectangle_new_with_color(&panel_color);	
-	clutter_actor_set_size(cbscreen->screenlock.panel_background, screen->width, screen->height * 0.125);
+	cbscreen->screenlock.panel_background = gpa_backend_clutter_create_panel(screen->width, screen->height * 0.125);
+//	cbscreen->screenlock.panel_background = clutter_rectangle_new_with_color(&panel_color);	
+//	clutter_actor_set_size(cbscreen->screenlock.panel_background, screen->width, screen->height * 0.125);
 	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->screenlock.container), cbscreen->screenlock.panel);
 	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->screenlock.panel), cbscreen->screenlock.panel_background);
 
@@ -53,6 +84,13 @@ gpa_backend_clutter_screenlock_init(GPaBackend *this, GPaScreen *screen)
 	cairo_set_source(cr, pat);
 	cairo_fill(cr);
 	cairo_pattern_destroy(pat);
+
+	cairo_move_to(cr, 0.0, 0.0);
+	cairo_line_to(cr, clutter_actor_get_width(cbscreen->screenlock.panel_light), 0.0);
+	cairo_set_source_rgba(cr, 1.0, 1.0, 1.0, 0.6);
+	cairo_set_line_width(cr, 1.0);
+	cairo_stroke(cr);
+
 	cairo_destroy(cr);
 
 	/* Label */
@@ -94,6 +132,13 @@ gpa_backend_clutter_screenlock_init(GPaBackend *this, GPaScreen *screen)
 	cairo_set_source(cr, pat);
 	cairo_fill(cr);
 	cairo_pattern_destroy(pat);
+
+	cairo_move_to(cr, 0.0, 0.0);
+	cairo_line_to(cr, clutter_actor_get_width(cbscreen->screenlock.slider_panel_light), 0.0);
+	cairo_set_source_rgba(cr, 1.0, 1.0, 1.0, 0.6);
+	cairo_set_line_width(cr, 1.0);
+	cairo_stroke(cr);
+
 	cairo_destroy(cr);
 
 	clutter_actor_hide(cbscreen->screenlock.container);
