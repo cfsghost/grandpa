@@ -57,11 +57,17 @@ gpa_backend_clutter_screenlock_init(GPaBackend *this, GPaScreen *screen)
 
 	/* Label */
 	cbscreen->screenlock.panel_label = clutter_text_new();
+	cbscreen->screenlock.panel_sublabel = clutter_text_new();
 	clutter_text_set_color(CLUTTER_TEXT(cbscreen->screenlock.panel_label), &text_color);
+	clutter_text_set_color(CLUTTER_TEXT(cbscreen->screenlock.panel_sublabel), &text_color);
 	clutter_text_set_font_name(CLUTTER_TEXT(cbscreen->screenlock.panel_label), "Sans 48");
-	clutter_actor_set_anchor_point_from_gravity(cbscreen->screenlock.panel_label, CLUTTER_GRAVITY_CENTER);
-	clutter_actor_set_position(cbscreen->screenlock.panel_label, screen->width * 0.5, screen->height * 0.0625);
+	clutter_text_set_font_name(CLUTTER_TEXT(cbscreen->screenlock.panel_sublabel), "Sans 14");
+	clutter_actor_set_anchor_point_from_gravity(cbscreen->screenlock.panel_label, CLUTTER_GRAVITY_NORTH);
+	clutter_actor_set_anchor_point_from_gravity(cbscreen->screenlock.panel_sublabel, CLUTTER_GRAVITY_SOUTH);
+	clutter_actor_set_position(cbscreen->screenlock.panel_label, screen->width * 0.5, .0);
+	clutter_actor_set_position(cbscreen->screenlock.panel_sublabel, screen->width * 0.5, clutter_actor_get_height(cbscreen->screenlock.panel) - 10);
 	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->screenlock.panel), cbscreen->screenlock.panel_label);
+	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->screenlock.panel), cbscreen->screenlock.panel_sublabel);
 
 	/* Slider Panel */
 	cbscreen->screenlock.slider_panel = clutter_group_new(); 
@@ -98,7 +104,8 @@ gpa_backend_clutter_screenlock_update_label(GPaBackend *this, GPaScreen *screen,
 {
 	GPaClutterBackendScreen *cbscreen = (GPaClutterBackendScreen *)screen->backend;
 
-	clutter_text_set_text(CLUTTER_TEXT(cbscreen->screenlock.panel_label),label);
+	clutter_text_set_text(CLUTTER_TEXT(cbscreen->screenlock.panel_label), label);
+	clutter_text_set_text(CLUTTER_TEXT(cbscreen->screenlock.panel_sublabel), sublabel);
 }
 
 void

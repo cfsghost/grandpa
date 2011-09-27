@@ -23,14 +23,17 @@ gpa_screenlock_init(GrandPa *gpa, GPaScreen *screen)
 void
 gpa_screenlock_update(GrandPa *gpa, GPaScreen *screen)
 {
+	gchar *time_strings = NULL;
 	gchar *date_strings = NULL;
 
 	/* Get current date */
-	date_strings = g_date_time_format(gpa->datetime, "%I:%M");
+	time_strings = g_date_time_format(gpa->datetime, "%I:%M");
+	date_strings = g_date_time_format(gpa->datetime, "%b %e, %A");
 
 	/* Update clock */
-	gpa->backend->engine->screenlock_update_label(gpa->backend->data, screen, date_strings, NULL);
+	gpa->backend->engine->screenlock_update_label(gpa->backend->data, screen, time_strings, date_strings);
 
+	g_free(time_strings);
 	g_free(date_strings);
 }
 
