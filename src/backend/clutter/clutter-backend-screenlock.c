@@ -13,6 +13,7 @@ gpa_backend_round_rectangle_new(gint width, gint height, gdouble radius, Clutter
 {
 	ClutterActor *actor;
 	cairo_t *cr;
+	cairo_pattern_t *pat;
 	gdouble degrees = G_PI / 180.0;
 	gdouble border_radius = radius + 1;
 	gdouble border_width = width;
@@ -48,8 +49,14 @@ gpa_backend_round_rectangle_new(gint width, gint height, gdouble radius, Clutter
 	cairo_arc(cr, 1 + radius, 1+ radius, radius, 180 * degrees, 270 * degrees);
 	cairo_close_path(cr);
 
-	cairo_set_source_rgb(cr, (gdouble)color->red / 255, (gdouble)color->green / 255, (gdouble)color->blue / 255);
+	pat = cairo_pattern_create_linear(0.0, 0.0, 0.0, height);
+	cairo_pattern_add_color_stop_rgba(pat, 1, 0.1, 0.1, 0.1, 1.0);
+	cairo_pattern_add_color_stop_rgba(pat, 0.2, 0.0, 0.0, 0.0, 1.0);
+	cairo_pattern_add_color_stop_rgba(pat, 0, 0, 0, 0, 1.0);
+	cairo_set_source(cr, pat);
+//	cairo_set_source_rgb(cr, (gdouble)color->red / 255, (gdouble)color->green / 255, (gdouble)color->blue / 255);
 	cairo_fill(cr);
+	cairo_pattern_destroy(pat);
 
 	cairo_destroy(cr);
 
