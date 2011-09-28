@@ -9,6 +9,54 @@
 #include "clutter-backend.h"
 
 static ClutterActor *
+gpa_backend_round_rectangle_new(gint width, gint height, gdouble radius, ClutterColor *color)
+{
+	ClutterActor *actor;
+	cairo_t *cr;
+	gdouble degrees = G_PI / 180.0;
+	gdouble border_radius = radius + 1;
+	gdouble border_width = width;
+	gdouble border_height = height;
+	gdouble content_width = width - 2;
+	gdouble content_height = height - 2;
+
+	/* Initializing a new actor to use Cairo */
+	actor = clutter_cairo_texture_new(width, height);
+	cr = clutter_cairo_texture_create(CLUTTER_CAIRO_TEXTURE(actor));
+
+	/* Clear */
+	cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
+	cairo_paint(cr);
+	cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+
+	/* Border */
+	cairo_new_sub_path(cr);
+	cairo_arc(cr, border_width - border_radius, border_radius, border_radius, -90 * degrees, 0);
+	cairo_arc(cr, border_width - border_radius, border_height - border_radius, border_radius, 0, 90 * degrees);
+	cairo_arc(cr, border_radius, border_height - border_radius, border_radius, 90 * degrees, 180 * degrees);
+	cairo_arc(cr, border_radius, border_radius, border_radius, 180 * degrees, 270 * degrees);
+	cairo_close_path(cr);
+
+	cairo_set_source_rgba(cr, 1.0, 1.0, 1.0, 0.3);
+	cairo_fill(cr);
+
+	/* path for rounded rectangle */
+	cairo_new_sub_path(cr);
+	cairo_arc(cr, 1 + content_width - radius, 1 + radius, radius, -90 * degrees, 0);
+	cairo_arc(cr, 1 + content_width - radius, 1 + content_height - radius, radius, 0, 90 * degrees);
+	cairo_arc(cr, 1 + radius, 1 + content_height - radius, radius, 90 * degrees, 180 * degrees);
+	cairo_arc(cr, 1 + radius, 1+ radius, radius, 180 * degrees, 270 * degrees);
+	cairo_close_path(cr);
+
+	cairo_set_source_rgb(cr, (gdouble)color->red / 255, (gdouble)color->green / 255, (gdouble)color->blue / 255);
+	cairo_fill(cr);
+
+	cairo_destroy(cr);
+
+	return actor;
+}
+
+static ClutterActor *
 gpa_backend_clutter_create_panel(gfloat width, gfloat height)
 {
 	ClutterActor *panel;
@@ -73,6 +121,52 @@ gpa_backend_clutter_create_light(gfloat width, gfloat height)
 	return light;
 }
 
+static ClutterActor *
+gpa_backend_clutter_create_button(gfloat width, gfloat height)
+{
+	ClutterActor *button;
+	cairo_t *cr;
+	cairo_pattern_t *pat;
+	gdouble radius = 8.0;
+	gdouble degrees = G_PI / 180.0;
+
+	button = clutter_cairo_texture_new(width, height);
+	cr = clutter_cairo_texture_create(CLUTTER_CAIRO_TEXTURE(button));
+
+	/* Clear Cairo operator */
+	cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
+	cairo_paint(cr);
+	cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+
+	pat = cairo_pattern_create_linear(0.0, 0.0, 0.0, height);
+	cairo_pattern_add_color_stop_rgba(pat, 1, 0.55, 0.55, 0.55, 1.0);
+	cairo_pattern_add_color_stop_rgba(pat, 0.9, 0.5, 0.5, 0.5, 1.0);
+	cairo_pattern_add_color_stop_rgba(pat, 0, 1, 1, 1, 1.0);
+
+	/* path for rounded rectangle */
+	cairo_new_sub_path(cr);
+	cairo_arc(cr, width - radius, radius, radius, -90 * degrees, 0);
+	cairo_arc(cr, width - radius, height - radius, radius, 0, 90 * degrees);
+	cairo_arc(cr, radius, height - radius, radius, 90 * degrees, 180 * degrees);
+	cairo_arc(cr, radius, radius, radius, 180 * degrees, 270 * degrees);
+	cairo_close_path(cr);
+
+	cairo_set_source(cr, pat);
+	cairo_fill(cr);
+	cairo_pattern_destroy(pat);
+
+	/* highlight */
+	cairo_move_to(cr, radius, height - 0.5);
+	cairo_line_to(cr, width - radius, height - 0.5);
+	cairo_set_source_rgba(cr, 1.0, 1.0, 1.0, 0.2);
+	cairo_set_line_width(cr, 1.0);
+	cairo_stroke(cr);
+
+	cairo_destroy(cr);
+
+	return button;
+}
+
 void
 gpa_backend_clutter_screenlock_init(GPaBackend *this, GPaScreen *screen)
 {
@@ -83,6 +177,7 @@ gpa_backend_clutter_screenlock_init(GPaBackend *this, GPaScreen *screen)
 	ClutterColor color = { 0x00, 0x00, 0x00, 0x22};
 	ClutterColor panel_color = { 0x00, 0x00, 0x00, 0xbb};
 	ClutterColor text_color = { 0xff, 0xff, 0xff, 0xff};
+	ClutterColor slider_text_color = { 0x77, 0x77, 0x77, 0xff};
 
 	cbscreen->screenlock.container = clutter_group_new(); 
 	cbscreen->screenlock.background = clutter_rectangle_new_with_color(&color);
@@ -120,12 +215,45 @@ gpa_backend_clutter_screenlock_init(GPaBackend *this, GPaScreen *screen)
 	/* Slider Panel */
 	cbscreen->screenlock.slider_panel = clutter_group_new(); 
 	cbscreen->screenlock.slider_panel_background = gpa_backend_clutter_create_panel(screen->width, screen->height * 0.1);
+	clutter_actor_set_position(cbscreen->screenlock.slider_panel, screen->width * 0.5, screen->height);
+	clutter_actor_set_anchor_point_from_gravity(cbscreen->screenlock.slider_panel, CLUTTER_GRAVITY_SOUTH);
 	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->screenlock.container), cbscreen->screenlock.slider_panel);
 	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->screenlock.slider_panel), cbscreen->screenlock.slider_panel_background);
 
 	/* Light on panel */
 	cbscreen->screenlock.slider_panel_light = gpa_backend_clutter_create_light(screen->width, screen->height * 0.05);
 	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->screenlock.slider_panel), cbscreen->screenlock.slider_panel_light);
+
+	/* Slider */
+	cbscreen->screenlock.slider = clutter_group_new();
+	cbscreen->screenlock.slider_background = gpa_backend_round_rectangle_new(200, 40, 10.0, &panel_color);
+	clutter_actor_set_position(cbscreen->screenlock.slider,
+		clutter_actor_get_width(cbscreen->screenlock.slider_panel) * 0.5,
+		clutter_actor_get_height(cbscreen->screenlock.slider_panel) * 0.5);
+	clutter_actor_set_anchor_point_from_gravity(cbscreen->screenlock.slider, CLUTTER_GRAVITY_CENTER);
+	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->screenlock.slider), cbscreen->screenlock.slider_background);
+	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->screenlock.slider_panel), cbscreen->screenlock.slider);
+
+	/* Slider Label */
+	cbscreen->screenlock.slider_label = clutter_text_new();
+	clutter_text_set_text(CLUTTER_TEXT(cbscreen->screenlock.slider_label), _("Slide to unlock"));
+	clutter_text_set_color(CLUTTER_TEXT(cbscreen->screenlock.slider_label), &slider_text_color);
+	clutter_text_set_font_name(CLUTTER_TEXT(cbscreen->screenlock.slider_label), "Sans 12");
+	clutter_actor_set_anchor_point_from_gravity(cbscreen->screenlock.slider_label, CLUTTER_GRAVITY_WEST);
+	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->screenlock.slider), cbscreen->screenlock.slider_label);
+	clutter_actor_set_position(cbscreen->screenlock.slider_label,
+		clutter_actor_get_width(cbscreen->screenlock.slider_background) * 0.25 + 15,
+		clutter_actor_get_height(cbscreen->screenlock.slider) * 0.5);
+
+	/* Slider Button */
+	cbscreen->screenlock.slider_button = clutter_group_new();
+	cbscreen->screenlock.slider_button_background = gpa_backend_clutter_create_button(
+		clutter_actor_get_width(cbscreen->screenlock.slider_background) * 0.25,
+		clutter_actor_get_height(cbscreen->screenlock.slider_background) - 6);
+	clutter_actor_set_position(cbscreen->screenlock.slider_button, 3, 3);
+
+	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->screenlock.slider_button), cbscreen->screenlock.slider_button_background);
+	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->screenlock.slider), cbscreen->screenlock.slider_button);
 
 	clutter_actor_hide(cbscreen->screenlock.container);
 }
@@ -146,7 +274,7 @@ gpa_backend_clutter_screenlock_enter(GPaBackend *this, GPaScreen *screen)
 
 	clutter_actor_set_opacity(cbscreen->screenlock.background, 0x00);
 	clutter_actor_set_y(cbscreen->screenlock.panel, screen->avail_y);
-	clutter_actor_set_y(cbscreen->screenlock.slider_panel, screen->height - clutter_actor_get_height(cbscreen->screenlock.slider_panel));
+	clutter_actor_set_y(cbscreen->screenlock.slider_panel, (gfloat)screen->height);
 	clutter_actor_show(cbscreen->screenlock.container);
 	clutter_actor_animate(cbscreen->screenlock.background, CLUTTER_EASE_OUT_CUBIC, 420,
 		"opacity", 0xff,
@@ -167,6 +295,6 @@ gpa_backend_clutter_screenlock_leave(GPaBackend *this, GPaScreen *screen)
 		NULL);
 
 	clutter_actor_animate(cbscreen->screenlock.slider_panel, CLUTTER_EASE_OUT_CUBIC, 360,
-		"y", (gfloat)screen->height,
+		"y", (gfloat)screen->height + clutter_actor_get_height(cbscreen->screenlock.slider_panel),
 		NULL);
 }

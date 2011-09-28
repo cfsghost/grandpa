@@ -49,6 +49,11 @@ typedef struct {
 		ClutterActor *slider_panel;
 		ClutterActor *slider_panel_background;
 		ClutterActor *slider_panel_light;
+		ClutterActor *slider_background;
+		ClutterActor *slider;
+		ClutterActor *slider_button;
+		ClutterActor *slider_button_background;
+		ClutterActor *slider_label;
 	} screenlock;
 } GPaClutterBackendScreen;
 
