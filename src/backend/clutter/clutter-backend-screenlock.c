@@ -167,6 +167,60 @@ gpa_backend_clutter_create_button(gfloat width, gfloat height)
 	return button;
 }
 
+static ClutterActor *
+gpa_backend_clutter_create_arrow(gfloat width, gfloat height)
+{
+	ClutterActor *icon;
+	cairo_t *cr;
+	cairo_pattern_t *pat;
+	gint x, y;
+
+	icon = clutter_cairo_texture_new(width, height);
+	cr = clutter_cairo_texture_create(CLUTTER_CAIRO_TEXTURE(icon));
+
+	/* Clear Cairo operator */
+	cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
+	cairo_paint(cr);
+	cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+
+	pat = cairo_pattern_create_linear(0.0, 0.0, 0.0, height);
+	cairo_pattern_add_color_stop_rgba(pat, 1, 0.5, 0.5, 0.5, 1.0);
+	cairo_pattern_add_color_stop_rgba(pat, 0.9, 0.0, 0.0, 0.0, 1.0);
+	cairo_pattern_add_color_stop_rgba(pat, 0, 0.0, 0.0, 0.0, 1.0);
+
+	/* path for arrow */
+	cairo_new_sub_path(cr);
+	y = (gint)(height * 0.25);
+	cairo_move_to(cr, 0.0, y);
+	x = (gint)(width * 0.55);
+	cairo_line_to(cr, x, y);
+	cairo_line_to(cr, x, 0);
+	y = (gint)(height * 0.5);
+	cairo_line_to(cr, width, y);
+	cairo_line_to(cr, x, height);
+	y = (gint)(height * 0.75);
+	cairo_line_to(cr, x, y);
+	cairo_line_to(cr, 0.0, y);
+	y = (gint)(height * 0.25);
+	cairo_line_to(cr, 0.0, y);
+	cairo_close_path(cr);
+
+	cairo_set_source(cr, pat);
+	cairo_fill(cr);
+	cairo_pattern_destroy(pat);
+#if 0
+	/* highlight */
+	cairo_move_to(cr, radius, height - 0.5);
+	cairo_line_to(cr, width - radius, height - 0.5);
+	cairo_set_source_rgba(cr, 1.0, 1.0, 1.0, 0.2);
+	cairo_set_line_width(cr, 1.0);
+	cairo_stroke(cr);
+#endif
+	cairo_destroy(cr);
+
+	return icon;
+}
+
 void
 gpa_backend_clutter_screenlock_init(GPaBackend *this, GPaScreen *screen)
 {
@@ -251,9 +305,18 @@ gpa_backend_clutter_screenlock_init(GPaBackend *this, GPaScreen *screen)
 		clutter_actor_get_width(cbscreen->screenlock.slider_background) * 0.25,
 		clutter_actor_get_height(cbscreen->screenlock.slider_background) - 6);
 	clutter_actor_set_position(cbscreen->screenlock.slider_button, 3, 3);
-
 	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->screenlock.slider_button), cbscreen->screenlock.slider_button_background);
 	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->screenlock.slider), cbscreen->screenlock.slider_button);
+
+	/* Slider button icon */
+	cbscreen->screenlock.slider_button_icon = gpa_backend_clutter_create_arrow(
+		clutter_actor_get_width(cbscreen->screenlock.slider_button) * 0.5,
+		clutter_actor_get_height(cbscreen->screenlock.slider_button) * 0.5);
+	clutter_actor_set_position(cbscreen->screenlock.slider_button_icon,
+		clutter_actor_get_width(cbscreen->screenlock.slider_button) * 0.5,
+		clutter_actor_get_height(cbscreen->screenlock.slider_button) * 0.5);
+	clutter_actor_set_anchor_point_from_gravity(cbscreen->screenlock.slider_button_icon, CLUTTER_GRAVITY_CENTER);
+	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->screenlock.slider_button), cbscreen->screenlock.slider_button_icon);
 
 	clutter_actor_hide(cbscreen->screenlock.container);
 }
