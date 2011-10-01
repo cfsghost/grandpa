@@ -4,6 +4,7 @@
 
 #include "grandpa.h"
 #include "client.h"
+#include "ewmh.h"
 
 void
 gpa_client_send_configure_notify(GrandPa *gpa, GPaClient *client)
@@ -92,6 +93,12 @@ gpa_client_set_active(GrandPa *gpa, GPaClient *client, gboolean active)
 	}
 }
 
+inline void
+gpa_client_window_type_update(GrandPa *gpa, GPaClient *client)
+{
+	client->type = gpa_ewmh_get_window_type(gpa, client->window);
+}
+
 void
 gpa_client_property_update(GrandPa *gpa, GPaClient *client)
 {
@@ -99,7 +106,8 @@ gpa_client_property_update(GrandPa *gpa, GPaClient *client)
 
 //	XGrabServer(gpa->display);
 
-	client->type = gpa_ewmh_get_window_type(gpa, client->window);
+	gpa_client_window_type_update(gpa, client);
+//	client->type = gpa_ewmh_get_window_type(gpa, client->window);
 
 	/* Update wstate from EWMH */
 	gpa_ewmh_state_update(gpa, client);
@@ -149,6 +157,7 @@ gpa_client_add(GrandPa *gpa, GPaScreen *screen, Window window)
 	client->screen = screen;
 	client->container = screen->root;
 	client->window = window;
+	client->type = WTypeDesktop;
 	client->state = WithdrawnState;
 	client->never_map = TRUE;
 	client->accepts_focus = TRUE;
@@ -159,7 +168,7 @@ gpa_client_add(GrandPa *gpa, GPaScreen *screen, Window window)
 	/* Setting client property */
 	gpa_client_property_update(gpa, client);
 
-	//XSelectInput(gpa->display, client->window, EnterWindowMask | PropertyChangeMask);
+	XSelectInput(gpa->display, client->window, EnterWindowMask | PropertyChangeMask);
 
 	/* Add to client list */
 	screen->clients = g_list_append(screen->clients, client);

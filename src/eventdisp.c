@@ -318,7 +318,7 @@ gpa_eventdisp_configure_request(GrandPa *gpa, XEvent *ev)
 
 	XConfigureWindow(gpa->display, cre->window, cre->value_mask, &xwc);
 
-	DEBUG("Configuring Window Type: %ld\n", client->type);
+	DEBUG("Configuring Window Type: %ld (window: %d)\n", client->type, cre->window);
 
 	/* event handler of backend */
 	gpa_backend_handle_event(gpa, ev, client);
@@ -583,6 +583,7 @@ gpa_eventdisp_property_notify(GrandPa *gpa, XEvent *ev)
 		DEBUG("PropertyNotify XA_WM_NORMAL_HINTS\n");
 	} else if (pe->atom == gpa->ewmh_atoms[_NET_WM_WINDOW_TYPE]) {
 		DEBUG("PropertyNotify _NET_WM_WINDOW_TYPE\n");
+		gpa_client_window_type_update(gpa, client);
 	} else if (pe->atom == gpa->ewmh_atoms[_NET_WM_STRUT]) {
 		DEBUG("PropertyNotify _NET_WM_STRUT\n");
 	}

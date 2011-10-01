@@ -196,28 +196,20 @@ gpa_ewmh_get_window_type(GrandPa *gpa, Window w)
 	for (; n; n--) {
 		if (type[n - 1] == gpa->ewmh_atoms[_NET_WM_WINDOW_TYPE_DESKTOP]) {
 			ret = WTypeDesktop;
-			break;
 		} else if (type[n - 1] == gpa->ewmh_atoms[_NET_WM_WINDOW_TYPE_DOCK]) {
 			ret = WTypeDock;
-			break;
 		} else if (type[n - 1] == gpa->ewmh_atoms[_NET_WM_WINDOW_TYPE_TOOLBAR]) {
 			ret = WTypeToolbar;
-			break;
 		} else if (type[n - 1] == gpa->ewmh_atoms[_NET_WM_WINDOW_TYPE_MENU]) {
 			ret = WTypeMenu;
-			break;
 		} else if (type[n - 1] == gpa->ewmh_atoms[_NET_WM_WINDOW_TYPE_UTILITY]) {
 			ret = WTypeUtility;
-			break;
 		} else if (type[n - 1] == gpa->ewmh_atoms[_NET_WM_WINDOW_TYPE_SPLASH]) {
 			ret = WTypeSplash;
-			break;
 		} else if (type[n - 1] == gpa->ewmh_atoms[_NET_WM_WINDOW_TYPE_DIALOG]) {
 			ret = WTypeDialog;
-			break;
 		} else if (type[n - 1] == gpa->ewmh_atoms[_NET_WM_WINDOW_TYPE_NORMAL]) {
 			ret = WTypeNormal;
-			break;
 		}
 	}
 
