@@ -195,11 +195,6 @@ gpa_screenmgr_screen_configure(GrandPa *gpa, GPaScreen *screen)
 
 	DEBUG("Configuring screen\n");
 
-	/* Setting cursor */
-	gpa_cursor_init(gpa, screen);
-	attr.cursor = screen->root_cursor;
-	XChangeWindowAttributes(gpa->display, screen->root, CWCursor, &attr);
-
 	/* Initiaiizing XComposite */
 	XCompositeRedirectSubwindows(gpa->display, screen->root, CompositeRedirectAutomatic);
 
@@ -226,6 +221,12 @@ gpa_screenmgr_screen_configure(GrandPa *gpa, GPaScreen *screen)
 	XMapWindow(gpa->display, screen->overlay);
 	DEBUG("Screen root window id: %ld\n", screen->root);
 	DEBUG("Screen overlay window id: %ld\n", screen->overlay);
+
+	/* Setting cursor */
+	gpa_cursor_init(gpa, screen);
+	attr.cursor = screen->root_cursor;
+	XChangeWindowAttributes(gpa->display, screen->root, CWCursor, &attr);
+	XChangeWindowAttributes(gpa->display, screen->overlay, CWCursor, &attr);
 
 	/* Initializing Input */
 	gpa_screenmgr_screen_input_configure(gpa, screen);
