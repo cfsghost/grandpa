@@ -152,20 +152,6 @@ gpa_backend_clutter_init(GPaBackend *this, int *argc, char ***argv)
 }
 
 void
-gpa_backend_clutter_input_init(GPaBackend *this, Window w)
-{
-	GrandPa *gpa = this->gpa;
-
-	/* Using XFixes extension to allow input pass through */
-	XserverRegion region = XFixesCreateRegion(gpa->display, NULL, 0);
-
-	XFixesSetWindowShapeRegion(gpa->display, w, ShapeBounding, 0, 0, 0);
-	XFixesSetWindowShapeRegion(gpa->display, w, ShapeInput, 0, 0, region);
-
-	XFixesDestroyRegion(gpa->display, region);
-}
-
-void
 gpa_backend_clutter_screen_init(GPaBackend *this, GPaScreen *screen)
 {
 	GrandPa *gpa = this->gpa;
@@ -182,6 +168,7 @@ gpa_backend_clutter_screen_init(GPaBackend *this, GPaScreen *screen)
 	/* Initializing stage */
 	cbscreen->stage = clutter_stage_get_default();
 	cbscreen->stage_window = clutter_x11_get_stage_window(CLUTTER_STAGE(cbscreen->stage));
+	screen->backend_window = cbscreen->stage_window;
 	cbscreen->viewport = clutter_group_new();
 	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->stage), cbscreen->viewport);
 	DEBUG("Stage window id: %ld\n", cbscreen->stage_window);
@@ -212,10 +199,6 @@ gpa_backend_clutter_screen_init(GPaBackend *this, GPaScreen *screen)
 	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->funclayer.container), cbscreen->funclayer.shadow);
 	clutter_actor_lower(cbscreen->funclayer.container, cbscreen->viewport);
 	clutter_actor_hide(cbscreen->funclayer.container);
-
-	/* Allow input pass through */
-	gpa_backend_clutter_input_init(this, screen->overlay);
-	gpa_backend_clutter_input_init(this, cbscreen->stage_window);
 
 	clutter_actor_realize(cbscreen->stage);
 	clutter_actor_show(cbscreen->stage);

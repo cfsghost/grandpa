@@ -151,6 +151,18 @@ gpa_screenmgr_screen_grabkey_all(GrandPa *gpa, KeyCode *code_table)
 }
 
 void
+gpa_screenmgr_input_passthrough(GrandPa *gpa, Window w)
+{
+	/* Using XFixes extension to allow input pass through */
+	XserverRegion region = XFixesCreateRegion(gpa->display, NULL, 0);
+
+	XFixesSetWindowShapeRegion(gpa->display, w, ShapeBounding, 0, 0, 0);
+	XFixesSetWindowShapeRegion(gpa->display, w, ShapeInput, 0, 0, region);
+
+	XFixesDestroyRegion(gpa->display, region);
+}
+
+void
 gpa_screenmgr_screen_input_configure(GrandPa *gpa, GPaScreen *screen)
 {
 	XWindowAttributes attr;
@@ -217,6 +229,7 @@ gpa_screenmgr_screen_configure(GrandPa *gpa, GPaScreen *screen)
 
 	/* Initializing Input */
 	gpa_screenmgr_screen_input_configure(gpa, screen);
+	gpa_screenmgr_input_passthrough(gpa, screen->overlay);
 
 	/* Initializing window */
 	gpa_backend_screen_init(gpa, screen);
