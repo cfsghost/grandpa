@@ -60,6 +60,9 @@ gpa_screenlock_enter(GrandPa *gpa)
 
 		/* Show screen lock */
 		gpa->backend->engine->screenlock_enter(gpa->backend->data, screen);
+
+		XMapWindow(gpa->display, screen->input_win);
+		XRaiseWindow(gpa->display, screen->input_win);
 	}
 }
 
@@ -78,6 +81,7 @@ gpa_screenlock_leave(GrandPa *gpa)
 	for (node = gpa->screen->screens; node; node = g_list_next(node)) {
 		screen = (GPaScreen *)node->data;
 
+		XUnmapWindow(gpa->display, screen->input_win);
 		gpa->backend->engine->screenlock_leave(gpa->backend->data, screen);
 	}
 }
