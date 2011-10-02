@@ -206,14 +206,12 @@ gpa_screenmgr_screen_configure(GrandPa *gpa, GPaScreen *screen)
 		PropertyChangeMask;
 
 	XChangeWindowAttributes(gpa->display, screen->root, CWEventMask, &attr);
-
-	XSelectInput(gpa->display, screen->root, attr.event_mask);
-
+#if 0
 	/* Listen to XRandr event */
 	XRRSelectInput(gpa->display, screen->root,
 		RRCrtcChangeNotifyMask | RRScreenChangeNotifyMask |
 		RROutputChangeNotifyMask | RROutputPropertyNotifyMask);
-
+#endif
 	XSync(gpa->display, FALSE);
 
 	screen->overlay = XCompositeGetOverlayWindow(gpa->display, screen->root);
