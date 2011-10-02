@@ -149,6 +149,7 @@ gpa_client_set_state(GrandPa *gpa, GPaClient *client, gint state)
 GPaClient *
 gpa_client_add(GrandPa *gpa, GPaScreen *screen, Window window)
 {
+	XSetWindowAttributes attr;
 	GPaClient *client;
 
 	/* Create a new client */
@@ -168,6 +169,11 @@ gpa_client_add(GrandPa *gpa, GPaScreen *screen, Window window)
 	/* Setting client property */
 	gpa_client_property_update(gpa, client);
 
+	/* Setting cursor */
+	attr.cursor = screen->root_cursor;
+	XChangeWindowAttributes(gpa->display, client->window, CWCursor, &attr);
+
+	/* Getting Event */
 	XSelectInput(gpa->display, client->window, EnterWindowMask | PropertyChangeMask);
 
 	/* Add to client list */
