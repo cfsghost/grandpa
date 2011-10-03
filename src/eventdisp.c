@@ -27,6 +27,7 @@ static gboolean gpa_eventdisp_circulate_request(GrandPa *gpa, XEvent *ev);
 static gboolean gpa_eventdisp_focusin(GrandPa *gpa, XEvent *ev);
 static gboolean gpa_eventdisp_focusout(GrandPa *gpa, XEvent *ev);
 static gboolean gpa_eventdisp_buttonpress(GrandPa *gpa, XEvent *ev);
+static gboolean gpa_eventdisp_buttonrelease(GrandPa *gpa, XEvent *ev);
 static gboolean gpa_eventdisp_keypress(GrandPa *gpa, XEvent *ev);
 static gboolean gpa_eventdisp_keyrelease(GrandPa *gpa, XEvent *ev);
 
@@ -44,6 +45,7 @@ static EventDispatcher eventdisp[] = {
 	{FocusIn, gpa_eventdisp_focusin},
 	{FocusOut, gpa_eventdisp_focusout},
 	{ButtonPress, gpa_eventdisp_buttonpress},
+	{ButtonRelease, gpa_eventdisp_buttonrelease},
 	{KeyPress, gpa_eventdisp_keypress},
 	{KeyRelease, gpa_eventdisp_keyrelease},
 };
@@ -217,8 +219,11 @@ gpa_eventdisp_dispatch(GSource *source, GSourceFunc callback, gpointer user_data
 
 		/* Regard input window as window manager window */
 		screen = (GPaScreen *)gpa_screenmgr_get_screen_with_internal_window(gpa, xevent.xany.window, GA_SCREEN_WINDOW_INPUT_WINDOW);
-		if (screen)
+		if (screen) {
 			xevent.xany.window = gpa_backend_get_root_window(gpa, screen);
+			xevent.xbutton.window = xevent.xany.window;
+			xevent.xmotion.window = xevent.xany.window;
+		}
 
 		if (!gpa_eventdisp_send(gpa, &xevent)) {
 			client = gpa_client_find_with_window(gpa, xevent.xany.window);
@@ -746,7 +751,35 @@ gpa_eventdisp_focusout(GrandPa *gpa, XEvent *ev)
 gboolean
 gpa_eventdisp_buttonpress(GrandPa *gpa, XEvent *ev)
 {
+	XButtonEvent *xbe = &ev->xbutton;
+	GPaClient *client;
+
 	DEBUG("Button Press\n");
+
+	client = gpa_client_find_with_window(gpa, xbe->window);
+	if (!client)
+		return FALSE;
+
+	/* event handler of backend */
+	gpa_backend_handle_event(gpa, ev, client);
+
+	return TRUE;
+}
+
+gboolean
+gpa_eventdisp_buttonrelease(GrandPa *gpa, XEvent *ev)
+{
+	XButtonEvent *xbe = &ev->xbutton;
+	GPaClient *client;
+
+	DEBUG("Button Release\n");
+
+	client = gpa_client_find_with_window(gpa, xbe->window);
+	if (!client)
+		return FALSE;
+
+	/* event handler of backend */
+	gpa_backend_handle_event(gpa, ev, client);
 
 	return TRUE;
 }

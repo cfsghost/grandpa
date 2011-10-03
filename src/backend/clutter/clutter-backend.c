@@ -168,7 +168,6 @@ gpa_backend_clutter_screen_init(GPaBackend *this, GPaScreen *screen)
 	/* Initializing stage */
 	cbscreen->stage = clutter_stage_get_default();
 	cbscreen->stage_window = clutter_x11_get_stage_window(CLUTTER_STAGE(cbscreen->stage));
-	screen->backend_window = cbscreen->stage_window;
 	cbscreen->viewport = clutter_group_new();
 	clutter_container_add_actor(CLUTTER_CONTAINER(cbscreen->stage), cbscreen->viewport);
 	DEBUG("Stage window id: %ld\n", cbscreen->stage_window);

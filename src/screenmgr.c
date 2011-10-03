@@ -162,6 +162,20 @@ gpa_screenmgr_input_passthrough(GrandPa *gpa, Window w)
 	XFixesDestroyRegion(gpa->display, region);
 }
 
+inline void
+gpa_screenmgr_input_enable(GrandPa *gpa, GPaScreen *screen)
+{
+	XMapWindow(gpa->display, screen->input_win);
+	XRaiseWindow(gpa->display, screen->input_win);
+	XSetInputFocus(gpa->display, screen->input_win, RevertToPointerRoot, CurrentTime);
+}
+
+inline void
+gpa_screenmgr_input_disable(GrandPa *gpa, GPaScreen *screen)
+{
+	XUnmapWindow(gpa->display, screen->input_win);
+}
+
 void
 gpa_screenmgr_screen_input_configure(GrandPa *gpa, GPaScreen *screen)
 {
@@ -177,12 +191,9 @@ gpa_screenmgr_screen_input_configure(GrandPa *gpa, GPaScreen *screen)
 		InputOnly, DefaultVisual(gpa->display, 0), 0, NULL);
 
 	XSelectInput(gpa->display, screen->input_win,
-		StructureNotifyMask | PointerMotionMask |
-		KeyPressMask | KeyReleaseMask | ButtonPressMask |
-		ButtonReleaseMask | PropertyChangeMask);
-
-	XMapWindow(gpa->display, screen->input_win);
-	XSetInputFocus(gpa->display, screen->input_win, RevertToPointerRoot, CurrentTime);
+		StructureNotifyMask | PropertyChangeMask |
+		KeyPressMask | KeyReleaseMask |
+		PointerMotionMask | ButtonPressMask | ButtonReleaseMask);
 
 	/* INitializing Grab Input */
 	gpa_screenmgr_screen_grabkey_init(gpa, screen);
@@ -195,13 +206,12 @@ gpa_screenmgr_screen_configure(GrandPa *gpa, GPaScreen *screen)
 
 	DEBUG("Configuring screen\n");
 
-	/* Initiaiizing XComposite */
-	XCompositeRedirectSubwindows(gpa->display, screen->root, CompositeRedirectAutomatic);
-
 	/* Tell root window we wanna be window manager */
 	attr.event_mask = SubstructureRedirectMask |
 		SubstructureNotifyMask |
 		StructureNotifyMask |
+		KeyPressMask | KeyReleaseMask |
+		PointerMotionMask | ButtonPressMask | ButtonReleaseMask |
 		FocusChangeMask |
 		PropertyChangeMask;
 
@@ -212,11 +222,12 @@ gpa_screenmgr_screen_configure(GrandPa *gpa, GPaScreen *screen)
 		RRCrtcChangeNotifyMask | RRScreenChangeNotifyMask |
 		RROutputChangeNotifyMask | RROutputPropertyNotifyMask);
 #endif
-	XSync(gpa->display, FALSE);
 
+	/* Initiaiizing XComposite */
+	XCompositeRedirectSubwindows(gpa->display, screen->root, CompositeRedirectAutomatic);
 	screen->overlay = XCompositeGetOverlayWindow(gpa->display, screen->root);
-
 	XMapWindow(gpa->display, screen->overlay);
+
 	DEBUG("Screen root window id: %ld\n", screen->root);
 	DEBUG("Screen overlay window id: %ld\n", screen->overlay);
 
