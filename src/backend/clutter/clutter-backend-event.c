@@ -178,7 +178,8 @@ gpa_backend_clutter_event_map_notify(GrandPa *gpa, GPaClient *client)
 	DEBUG("Start to update window content automatically\n");
 
 	clutter_x11_texture_pixmap_set_window((ClutterX11TexturePixmap *)cbclient->window, client->window, TRUE);
-	clutter_x11_texture_pixmap_set_automatic((ClutterX11TexturePixmap *)cbclient->window, TRUE);
+	if (!client->wstate.fullscreen)
+		clutter_x11_texture_pixmap_set_automatic((ClutterX11TexturePixmap *)cbclient->window, TRUE);
 //	}
 
 //	clutter_actor_raise_top(cbclient->window);
@@ -395,7 +396,8 @@ gpa_backend_clutter_event_filter(XEvent *ev, ClutterEvent *cev, gpointer data)
 		return CLUTTER_X11_FILTER_REMOVE;
 
 	case KeyPress:
-		return CLUTTER_X11_FILTER_CONTINUE;
+		return CLUTTER_X11_FILTER_REMOVE;
+//		return CLUTTER_X11_FILTER_CONTINUE;
 
 	case KeyRelease:
 		return CLUTTER_X11_FILTER_CONTINUE;
@@ -428,7 +430,8 @@ gpa_backend_clutter_event_filter(XEvent *ev, ClutterEvent *cev, gpointer data)
 
 	case ButtonPress:
 		DEBUG("XCXXXXXXXXXXXXXXXXXXXXXXXx\n");
-		return CLUTTER_X11_FILTER_CONTINUE;
+		return CLUTTER_X11_FILTER_REMOVE;
+//		return CLUTTER_X11_FILTER_CONTINUE;
 		
 #if 0
 	/* Ignore these events for optimization */
@@ -484,6 +487,7 @@ gpa_backend_clutter_event_handle(GPaBackend *this, XEvent *ev, GPaClient *client
 	clutter_x11_handle_event(ev);
 	event = clutter_event_get();
 	if (event) {
+		DEBUG("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCOOOOOOOOOOOOOOOOOOOLLLL\n");
 		clutter_do_event(event);
 		clutter_event_free(event);
 	}

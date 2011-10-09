@@ -508,6 +508,11 @@ gpa_eventdisp_unmap_notify(GrandPa *gpa, XEvent *ev)
 		}
 	}
 
+	/* Redirect window again if fullscreen window was unmapped */
+	if (client->wstate.fullscreen) {
+		XMapWindow(gpa->display, client->screen->overlay);
+	}
+
 	/* event handler of backend */
 	gpa_backend_handle_event(gpa, ev, client);
 
@@ -523,6 +528,12 @@ gpa_eventdisp_map_notify(GrandPa *gpa, XEvent *ev)
 	client = gpa_client_find_with_window(gpa, xme->window);
 	if (!client)
 		return FALSE;
+
+	/* Do not redirect window if fullscreen */
+	if (client->wstate.fullscreen) {
+		/* Hide overlay to show fullscreen window */
+		XUnmapWindow(gpa->display, client->screen->overlay);
+	}
 
 	/* event handler of backend */
 	gpa_backend_handle_event(gpa, ev, client);
@@ -754,7 +765,7 @@ gpa_eventdisp_buttonpress(GrandPa *gpa, XEvent *ev)
 	XButtonEvent *xbe = &ev->xbutton;
 	GPaClient *client;
 
-	DEBUG("Button Press\n");
+	DEBUG("Button Press %d\n", xbe->window);
 
 	client = gpa_client_find_with_window(gpa, xbe->window);
 	if (!client)
