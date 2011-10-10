@@ -316,12 +316,32 @@ gpa_eventdisp_configure_request(GrandPa *gpa, XEvent *ev)
 		DEBUG("CWStackMode || CWStackMode\n");
 	}
 
-	if (client->type == WTypeNormal) { 
+	if (client->wstate.fullscreen) {
 		xwc.x = 0;
 		xwc.y = 0;
+		xwc.width = client->screen->width;
+		xwc.height = client->screen->height;
+	} else if (client->type == WTypeNormal) { 
+		/* window size and position cannot be out off range */
+		if (xwc.x < client->screen->avail_x)
+			xwc.x = client->screen->avail_x;
+		if (xwc.y < client->screen->avail_y)
+			xwc.y = client->screen->avail_y;
+		DEBUG("%d, %d\n", client->screen->avail_width, client->screen->avail_height);
+		if (xwc.width > client->screen->avail_width)
+			xwc.width = client->screen->avail_width;
+		if (xwc.height > client->screen->avail_height)
+			xwc.height = client->screen->avail_height;
 	}
 
+	/* Update client information */
+	client->x = xwc.x;
+	client->y = xwc.y;
+	client->width = xwc.width;
+	client->height = xwc.height;
+
 	XConfigureWindow(gpa->display, cre->window, cre->value_mask, &xwc);
+	gpa_client_send_configure_notify(gpa, client);
 
 	DEBUG("Configuring Window Type: %ld (window: %d)\n", client->type, cre->window);
 
@@ -437,8 +457,10 @@ gpa_eventdisp_map_request(GrandPa *gpa, XEvent *ev)
 			client->width = client->screen->width;
 			client->height = client->screen->height;
 		} else {
-			client->width = client->screen->width;
-			client->height = client->screen->height;
+			client->x = client->screen->avail_x;
+			client->y = client->screen->avail_y;
+			client->width = client->screen->avail_width;
+			client->height = client->screen->avail_height;
 		}
 
 		/* Move and resize window */
@@ -671,6 +693,12 @@ gpa_eventdisp_client_message(GrandPa *gpa, XEvent *ev)
 				nev.xconfigurerequest.value_mask |= CWWidth;
 			if (cme->data.l[0] & (1 << 11))
 				nev.xconfigurerequest.value_mask |= CWHeight;
+
+			DEBUG("XClient want to move and resize to (x=%d, y=%d, w=%d, h=%d)\n",
+				nev.xconfigurerequest.x,
+				nev.xconfigurerequest.y,
+				nev.xconfigurerequest.width,
+				nev.xconfigurerequest.height);
 
 			gpa_eventdisp_configure_request(gpa, &nev);
 
