@@ -557,11 +557,6 @@ gpa_eventdisp_map_notify(GrandPa *gpa, XEvent *ev)
 	if (!client)
 		return FALSE;
 
-	if (client->wstate.fullscreen) {
-		DEBUG("Fullscreen Window\n");
-		XFixesSetWindowShapeRegion(gpa->display, client->screen->overlay, ShapeInput, 0, 0, 0);
-	}
-
 	/* event handler of backend */
 	gpa_backend_handle_event(gpa, ev, client);
 
@@ -645,11 +640,10 @@ gpa_eventdisp_client_message(GrandPa *gpa, XEvent *ev)
 
 	DEBUG("ClientMessage window id: %ld\n", cme->window);
 
-	client = gpa_client_find_with_window(gpa, cme->window);
-	if (!client)
-		return FALSE;
-
 	if (cme->format == 32) {
+		client = gpa_client_find_with_window(gpa, cme->window);
+		if (!client)
+			return FALSE;
 
 #ifdef _DEBUG
 		static char buf[48];
@@ -727,10 +721,10 @@ gpa_eventdisp_client_message(GrandPa *gpa, XEvent *ev)
 
 			return TRUE;
 		}
-	}
 
-	/* event handler of backend */
-	gpa_backend_handle_event(gpa, ev, client);
+		/* event handler of backend */
+		gpa_backend_handle_event(gpa, ev, client);
+	}
 
 	return TRUE;
 }

@@ -92,6 +92,10 @@ gpa_ewmh_init(GrandPa *gpa)
 	gpa->ewmh_atoms[_NET_WM_WINDOW_TYPE_NORMAL] =
 		XInternAtom(gpa->display, "_NET_WM_WINDOW_TYPE_NORMAL", False);
 
+	gpa->ewmh_atoms[_NET_WM_STATE_MAXIMIZED_HORZ] =
+		XInternAtom(gpa->display, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
+	gpa->ewmh_atoms[_NET_WM_STATE_MAXIMIZED_VERT] =
+		XInternAtom(gpa->display, "_NET_WM_STATE_MAXIMIZED_VERT", False);
 	gpa->ewmh_atoms[_NET_WM_STATE_SKIP_TASKBAR] =
 		XInternAtom(gpa->display, "_NET_WM_STATE_SKIP_TASKBAR", False);
 	gpa->ewmh_atoms[_NET_WM_STATE_SKIP_PAGER] =
@@ -104,6 +108,10 @@ gpa_ewmh_init(GrandPa *gpa)
 		XInternAtom(gpa->display, "_NET_WM_ACTION_MOVE", False);
 	gpa->ewmh_atoms[_NET_WM_ACTION_RESIZE] =
 		XInternAtom(gpa->display, "_NET_WM_ACTION_RESIZE", False);
+	gpa->ewmh_atoms[_NET_WM_ACTION_MAXIMIZE_HORZ] =
+		XInternAtom(gpa->display, "_NET_WM_ACTION_MAXIMIZE_HORZ", False);
+	gpa->ewmh_atoms[_NET_WM_ACTION_MAXIMIZE_VERT] =
+		XInternAtom(gpa->display, "_NET_WM_ACTION_MAXIMIZE_VERT", False);
 	gpa->ewmh_atoms[_NET_WM_ACTION_FULLSCREEN] =
 		XInternAtom(gpa->display, "_NET_WM_ACTION_FULLSCREEN", False);
 	gpa->ewmh_atoms[_NET_WM_ACTION_CLOSE] =
@@ -393,12 +401,14 @@ gpa_ewmh_state_sync(GrandPa *gpa, GPaClient *client)
 void
 gpa_ewmh_set_allowed(GrandPa *gpa, GPaClient *client)
 {
-	Atom action[4];
+	Atom action[6];
 
 	action[0] = gpa->ewmh_atoms[_NET_WM_ACTION_MOVE];
 	action[1] = gpa->ewmh_atoms[_NET_WM_ACTION_RESIZE];
 	action[2] = gpa->ewmh_atoms[_NET_WM_ACTION_FULLSCREEN];
 	action[3] = gpa->ewmh_atoms[_NET_WM_ACTION_CLOSE];
+	action[4] = gpa->ewmh_atoms[_NET_WM_ACTION_MAXIMIZE_HORZ];
+	action[5] = gpa->ewmh_atoms[_NET_WM_ACTION_MAXIMIZE_VERT];
 	XChangeProperty(gpa->display, client->window, gpa->ewmh_atoms[_NET_WM_ALLOWED_ACTIONS],
 		XA_ATOM, 32, PropModeReplace,
 		(unsigned char *)action, 4);
