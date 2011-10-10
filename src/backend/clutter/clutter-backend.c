@@ -48,6 +48,7 @@ gpa_backend_clutter_create_client(GrandPa *gpa, GPaClient *client)
 	}
 
 	cbclient = (GPaClutterBackendClient *)g_new0(GPaClutterBackendClient, 1);
+	cbclient->parent = client;
 	cbclient->window = clutter_glx_texture_pixmap_new_with_window(client->window);
 	DEBUG("Create window texture\n");
 
@@ -180,11 +181,12 @@ gpa_backend_clutter_screen_init(GPaBackend *this, GPaScreen *screen)
 
 	/* Setting X Window */
 	XReparentWindow(gpa->display, cbscreen->stage_window, screen->overlay, 0, 0);
+/*
 	XSelectInput(gpa->display, cbscreen->stage_window,
 		ButtonPressMask | ButtonReleaseMask |
 		ExposureMask | StructureNotifyMask);
 	XSync(gpa->display, FALSE);
-
+*/
 	clutter_stage_set_color(CLUTTER_STAGE(cbscreen->stage), &color);
 	clutter_actor_set_size(cbscreen->stage, (gfloat)screen->width, (gfloat)screen->height);
 	clutter_actor_set_size(cbscreen->viewport, (gfloat)screen->width, (gfloat)screen->height);

@@ -403,6 +403,8 @@ gpa_eventdisp_map_request(GrandPa *gpa, XEvent *ev)
 
 		/* Figure size and position for difference window type and status */
 		if (client->wstate.fullscreen) {
+			DEBUG("Fullscreen Window\n");
+
 			client->x = 0;
 			client->y = 0;
 			client->width = client->screen->width;
@@ -446,6 +448,7 @@ gpa_eventdisp_map_request(GrandPa *gpa, XEvent *ev)
 			client->width, client->height);
 
 		XReparentWindow(gpa->display, client->window, client->container, client->x, client->y);
+
 		XAddToSaveSet(gpa->display, client->window);
 
 		/* get window name which is utf8 string */
@@ -486,6 +489,16 @@ gpa_eventdisp_unmap_notify(GrandPa *gpa, XEvent *ev)
 		return FALSE;
 
 	DEBUG("Unmapping window id: %ld\n", xue->window);
+	/* Redirect window again if fullscreen window was unmapped.
+	 * We will show overlay window before backend handler, because
+	 * Backend might have animation or effect for hiding window.
+	 */
+	if (client->wstate.fullscreen) {
+		XMapWindow(gpa->display, client->screen->overlay);
+	}
+
+	/* event handler of backend */
+	gpa_backend_handle_event(gpa, ev, client);
 
 	if (client->state == NormalState) {
 //		XGrabServer(gpa->display);
@@ -508,13 +521,6 @@ gpa_eventdisp_unmap_notify(GrandPa *gpa, XEvent *ev)
 		}
 	}
 
-	/* Redirect window again if fullscreen window was unmapped */
-	if (client->wstate.fullscreen) {
-		XMapWindow(gpa->display, client->screen->overlay);
-	}
-
-	/* event handler of backend */
-	gpa_backend_handle_event(gpa, ev, client);
 
 	return TRUE;
 }
@@ -529,10 +535,9 @@ gpa_eventdisp_map_notify(GrandPa *gpa, XEvent *ev)
 	if (!client)
 		return FALSE;
 
-	/* Do not redirect window if fullscreen */
 	if (client->wstate.fullscreen) {
-		/* Hide overlay to show fullscreen window */
-		XUnmapWindow(gpa->display, client->screen->overlay);
+		DEBUG("Fullscreen Window\n");
+		XFixesSetWindowShapeRegion(gpa->display, client->screen->overlay, ShapeInput, 0, 0, 0);
 	}
 
 	/* event handler of backend */

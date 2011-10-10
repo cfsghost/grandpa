@@ -59,6 +59,7 @@ typedef struct {
 } GPaClutterBackendScreen;
 
 typedef struct {
+	GPaClient *parent;
 	ClutterActor *window;
 	ClutterActor *overlay;
 	GPaClientIState state;
@@ -76,6 +77,7 @@ void                     gpa_backend_clutter_event_init(GPaBackend *this);
 void gpa_backend_clutter_enable_funclayer_completed(ClutterAnimation *animation, gpointer user_data);
 void gpa_backend_clutter_disable_funclayer_completed(ClutterAnimation *animation, gpointer user_data);
 void gpa_backend_clutter_unmap_completed(ClutterAnimation *animation, gpointer user_data);
+void gpa_backend_clutter_map_completed(ClutterAnimation *animation, gpointer user_data);
 void gpa_backend_clutter_window_destroy_completed(ClutterAnimation *animation, gpointer user_data);
 void gpa_backend_clutter_event_handle(GPaBackend *this, XEvent *ev, GPaClient *client);
 

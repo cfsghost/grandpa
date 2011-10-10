@@ -106,7 +106,14 @@ gpa_backend_clutter_event_unmap_notify(GrandPa *gpa, GPaClient *client)
 		return;
 
 	cbclient->state |= GPaCBClientStateUnmapping;
-	clutter_x11_texture_pixmap_set_automatic((ClutterX11TexturePixmap *)cbclient->window, FALSE);
+
+	/* Redirect window again if fullscreen window was unmapped */
+	if (client->wstate.fullscreen) {
+		/* Try to get last snapshot */
+		//clutter_x11_texture_pixmap_sync_window((ClutterX11TexturePixmap *)cbclient->window);
+	} else {
+		clutter_x11_texture_pixmap_set_automatic((ClutterX11TexturePixmap *)cbclient->window, FALSE);
+	}
 
 	if (client->trans != None || client->override_redirect) {
 		if (client->type == WTypeDialog) {
@@ -180,6 +187,8 @@ gpa_backend_clutter_event_map_notify(GrandPa *gpa, GPaClient *client)
 	clutter_x11_texture_pixmap_set_window((ClutterX11TexturePixmap *)cbclient->window, client->window, TRUE);
 	if (!client->wstate.fullscreen)
 		clutter_x11_texture_pixmap_set_automatic((ClutterX11TexturePixmap *)cbclient->window, TRUE);
+	else
+		clutter_x11_texture_pixmap_set_automatic((ClutterX11TexturePixmap *)cbclient->window, FALSE);
 //	}
 
 //	clutter_actor_raise_top(cbclient->window);
@@ -203,11 +212,13 @@ gpa_backend_clutter_event_map_notify(GrandPa *gpa, GPaClient *client)
 			clutter_actor_animate(cbclient->window, CLUTTER_EASE_OUT_ELASTIC, 840,
 				"scale-x", 1.0,
 				"scale-y", 1.0,
+				"signal-after::completed", gpa_backend_clutter_map_completed, cbclient,
 				NULL);
 		} else {
 			clutter_actor_set_opacity(cbclient->window, 0x00);
 			clutter_actor_animate(cbclient->window, CLUTTER_EASE_OUT_CUBIC, 420,
 				"opacity", 0xff,
+				"signal-after::completed", gpa_backend_clutter_map_completed, cbclient,
 				NULL);
 		}
 	} else {
@@ -220,6 +231,7 @@ gpa_backend_clutter_event_map_notify(GrandPa *gpa, GPaClient *client)
 		clutter_actor_animate(cbclient->window, CLUTTER_EASE_OUT_CIRC, 600,
 			"scale-x", 1.0,
 			"scale-y", 1.0,
+			"signal-after::completed", gpa_backend_clutter_map_completed, cbclient,
 			NULL);
 	}
 

@@ -44,6 +44,24 @@ gpa_backend_clutter_unmap_completed(ClutterAnimation *animation, gpointer user_d
 }
 
 void
+gpa_backend_clutter_map_completed(ClutterAnimation *animation, gpointer user_data)
+{
+	GPaClient *client;
+	GPaClutterBackendClient *cbclient = (GPaClutterBackendClient *)user_data;
+
+	if (!cbclient)
+		return;
+
+	client = cbclient->parent;
+
+	/* Do not redirect window if fullscreen window */
+	if (client->wstate.fullscreen) {
+		/* Hide overlay to show fullscreen window */
+		XUnmapWindow(client->gpa->display, client->screen->overlay);
+	}
+}
+
+void
 gpa_backend_clutter_disable_funclayer_completed(ClutterAnimation *animation, gpointer user_data)
 {
 	GPaClient *client = (GPaClient *)user_data;
